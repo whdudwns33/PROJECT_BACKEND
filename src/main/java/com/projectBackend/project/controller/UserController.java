@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Getter
 @ToString
 @RequiredArgsConstructor
-@RequestMapping("/member")
-public class MemberController {
+@RequestMapping("/user")
+public class UserController {
 
 
 

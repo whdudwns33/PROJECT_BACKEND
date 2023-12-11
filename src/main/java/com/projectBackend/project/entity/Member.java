@@ -5,44 +5,46 @@ import lombok.*;
 
 import javax.persistence.*;
 
+// 해당 엔티티(클래스)의 이름은 User 가 아닌 Member
+// 이미 jwt의 User가 존재하기 때문
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Entity
-@Table(name = "member")
-
+@Table(name = "user")
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private String email;
-    private String password;
-    private String nickName;
-    private String name;
-    private String addr;
-    private String tel;
-    private String gender;
-    private int age;
-    private int point;
+    private String userEmail;
+    private String userPassword;
+    private String userNickname;
+    private String userName;
+    private String userAddr;
+    private String userPhone;
+    private String userGen;
+    private int userAge;
+    private int userPoint;
     private String BUSINESS_NUM;
     @Enumerated(EnumType.STRING)
     private Authority authority;
 
-
     @Builder
     public Member(String email, String password, String nickName, String name, String addr, String tel, String gender, String BUSINESS_NUM, int point, int age, Authority authority) {
-        this.email = email;
-        this.password = password;
-        this.nickName = nickName;
-        this.addr = addr;
-        this.tel = tel;
+        this.userEmail = email;
+        this.userPassword = password;
+        this.userNickname = nickName;
+        this.userAddr = addr;
+        this.userPhone = tel;
         this.BUSINESS_NUM = BUSINESS_NUM;
-        this.name = name;
-        this.gender = gender;
-        this.point = point;
+        this.userName = name;
+        this.userGen = gender;
+        this.userPoint = point;
         this.authority = authority;
-        this.age = age;
+        this.userAge = age;
     }
+
+
 }
