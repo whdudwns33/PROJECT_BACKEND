@@ -11,15 +11,21 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//import static com.projectBackend.project.utils.Common.CORS_ORIGIN;
+
+
+
 @Slf4j
 @RestController
 @RequestMapping("/performance")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "*") // CrossOrigin 어노테이션을 통해 특정 origin(여기서는 http://localhost:3000)에서의 요청을 허용한다.
 public class PerformanceController {
     private final PerformanceService performanceService;
     // 공연 전체 조회
     @GetMapping("/list")
     public ResponseEntity<List<PerformanceDto>> performanceList() {
+        System.out.println("컨트롤러 performanceList");
         List<PerformanceDto> list = performanceService.getPerformanceList();
         return ResponseEntity.ok(list);
     }

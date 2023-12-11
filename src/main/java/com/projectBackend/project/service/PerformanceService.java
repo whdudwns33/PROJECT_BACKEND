@@ -23,6 +23,7 @@ public class PerformanceService {
     public List<PerformanceDto> getPerformanceList() {
         List<Performance> performances = performanceRepository.findAll();
         List<PerformanceDto> performanceDtos = new ArrayList<>();
+        System.out.println("서비스 getPerformanceList");
         for (Performance performance : performances) {
             performanceDtos.add(convertEntityToDto(performance));
         }
