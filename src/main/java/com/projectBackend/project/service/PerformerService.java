@@ -41,7 +41,7 @@ public class PerformerService {
         PerformerDto performerDto = new PerformerDto();
         performerDto.setPerformerId(performer.getPerformerId());
         performerDto.setPerformanceId(performer.getPerformance().getPerformanceId().toString());
-        performerDto.setUserNickname(performer.getMember().getUserNickname());
+        performerDto.setPerformer(performer.getMember().getUserNickname());
         return performerDto;
     }
 }

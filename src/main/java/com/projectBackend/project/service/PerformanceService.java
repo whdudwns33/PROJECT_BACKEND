@@ -2,10 +2,12 @@ package com.projectBackend.project.service;
 
 
 import com.projectBackend.project.dto.PerformanceDto;
+import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Performance;
 import com.projectBackend.project.entity.Performer;
 import com.projectBackend.project.repository.PerformanceRepository;
 import com.projectBackend.project.repository.PerformerRepository;
+import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ import java.util.List;
 public class PerformanceService {
     private final PerformanceRepository performanceRepository;
     private final PerformerRepository performerRepository;
+    private final UserRepository userRepository;
 
     // 공연 조회
     public List<PerformanceDto> getPerformanceList() {
@@ -39,10 +42,10 @@ public class PerformanceService {
         boolean isTrue = false;
         try {
             Performance performance = new Performance();
-            // 멤버 검증 필요
-//            Member member = memberRepository.findByEmail(boardDto.getEmail()).orElseThrow(
-//                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
-//            );
+//             멤버 검증 필요
+            Member member = userRepository.findByUserNickname(performanceDto.getPerformer()).orElseThrow(
+                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
+            );
             performance.setPerformanceName(performanceDto.getPerformanceName());
             performance.setVenue(performanceDto.getVenue());
             performance.setDetailVenue(performanceDto.getDetailVenue());
@@ -56,7 +59,7 @@ public class PerformanceService {
             if (isTrue) {
                 Performer performer = new Performer();
                 performer.setPerformance(performance);
-                performer.setMember(getMemberDto.)
+                performer.setMember(member);
                 performerRepository.save(performer);
             } else {
                 return false;
