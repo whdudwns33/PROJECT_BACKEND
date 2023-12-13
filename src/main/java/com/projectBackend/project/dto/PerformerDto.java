@@ -8,6 +8,6 @@ import lombok.Setter;
 public class PerformerDto {
     private Long performerId;
     private String performanceId;
-    private String performers;
+    private String
 
 }

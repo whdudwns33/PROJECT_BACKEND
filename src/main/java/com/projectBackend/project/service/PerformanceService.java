@@ -3,7 +3,9 @@ package com.projectBackend.project.service;
 
 import com.projectBackend.project.dto.PerformanceDto;
 import com.projectBackend.project.entity.Performance;
+import com.projectBackend.project.entity.Performer;
 import com.projectBackend.project.repository.PerformanceRepository;
+import com.projectBackend.project.repository.PerformerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PerformanceService {
     private final PerformanceRepository performanceRepository;
+    private final PerformerRepository performerRepository;
 
     // 공연 조회
     public List<PerformanceDto> getPerformanceList() {
@@ -33,17 +36,14 @@ public class PerformanceService {
 
     // 공연 등록
     public boolean savePerformance(PerformanceDto performanceDto) {
+        boolean isTrue = false;
         try {
             Performance performance = new Performance();
-            // 멤버 및 카테고리 검증 필요
+            // 멤버 검증 필요
 //            Member member = memberRepository.findByEmail(boardDto.getEmail()).orElseThrow(
 //                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
 //            );
-//            Category category = categoryRepository.findById(boardDto.getCategoryId()).orElseThrow(
-//                    () -> new RuntimeException("해당 카테고리가 존재하지 않습니다.")
-//            );
             performance.setPerformanceName(performanceDto.getPerformanceName());
-            performance.setPerformer(performanceDto.getPerformer());
             performance.setVenue(performanceDto.getVenue());
             performance.setDetailVenue(performanceDto.getDetailVenue());
             performance.setPerformanceDate(performanceDto.getPerformanceDate());
@@ -52,6 +52,17 @@ public class PerformanceService {
             performance.setSeatCount(performanceDto.getSeatCount());
             performance.setPerformanceImage(performanceDto.getPerformanceImage());
             performanceRepository.save(performance);
+            isTrue = true;
+            if (isTrue) {
+                Performer performer = new Performer();
+                performer.setPerformance(performance);
+                performer.setMember(getMemberDto.)
+                performerRepository.save(performer);
+            } else {
+                return false;
+            }
+
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,7 +96,6 @@ public class PerformanceService {
         PerformanceDto performanceDto = new PerformanceDto();
         performanceDto.setPerformanceId(performance.getPerformanceId());
         performanceDto.setPerformanceName(performance.getPerformanceName());
-        performanceDto.setPerformer(performance.getPerformer());
         performanceDto.setVenue(performance.getVenue());
         performanceDto.setDetailVenue(performance.getDetailVenue());
         performanceDto.setPerformanceDate(performance.getPerformanceDate());

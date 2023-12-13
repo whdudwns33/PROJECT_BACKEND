@@ -17,7 +17,11 @@ public class Performance {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long performanceId;
     private String performanceName;
-    private String performer;
+
+    @OneToMany(mappedBy = "performance", orphanRemoval = true)
+    @JoinColumn(name = "user_id") // 외래키
+    private Performer performer; // 공연 참여자
+
     private String venue;
     private String detailVenue;
     private String performanceDate;
