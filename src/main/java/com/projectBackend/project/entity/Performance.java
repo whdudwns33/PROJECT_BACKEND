@@ -19,7 +19,7 @@ public class Performance {
     private String performanceName;
 
     @OneToMany(mappedBy = "performance", orphanRemoval = true)
-    @JoinColumn(name = "user_id") // 외래키
+//    @JoinColumn(name = "user_id") // 외래키
     private Performer performer; // 공연 참여자
 
     private String venue;
