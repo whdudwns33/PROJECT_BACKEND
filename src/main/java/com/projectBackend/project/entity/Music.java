@@ -2,10 +2,7 @@ package com.projectBackend.project.entity;
 
 
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -15,6 +12,8 @@ import java.util.Date;
 @Table(name = "music")
 @Getter  @Setter @ToString
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 public class Music {
     @Id
@@ -22,37 +21,37 @@ public class Music {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long musicId;
 
-    @Column(name = "music_title", length = 50, nullable = false)
+    @Column(name = "music_title")
     private String musicTitle;
 
-    @Column(name = "lyricist", length = 30, nullable = false)
+    @Column(name = "lyricist")
     private String lyricist;
 
-    @Column(name = "composer", length = 30, nullable = false)
+    @Column(name = "composer")
     private String composer;
 
-    @Column(name = "genre", length = 20, nullable = false)
+    @Column(name = "genre")
     private String genre;
 
-    @Column(name = "purchase_count", nullable = false)
+    @Column(name = "purchase_count")
     private int purchaseCount;
 
-    @Column(name = "lyrics", length = 2000, nullable = false)
+    @Column(name = "lyrics")
     private String lyrics;
 
-    @Column(name = "release_date", nullable = false)
+    @Column(name = "release_date")
     private LocalDate releaseDate;
 
-    @Column(name = "thumbnail_img", length = 100, nullable = false)
+    @Column(name = "thumbnail_img")
     private String thumbnailImage;
 
-    @Column(name = "promo_img", length = 100, nullable = false)
+    @Column(name = "promo_img")
     private String promoImage;
 
-    @Column(name = "music_info", length = 100, nullable = false)
+    @Column(name = "music_info")
     private String musicInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_nickname", nullable = false) // 외래 키 지정
+    @JoinColumn(name = "user_id") // 외래 키 지정
     private Member member;
 }

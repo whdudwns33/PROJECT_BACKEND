@@ -19,21 +19,21 @@ import java.time.LocalDateTime;
 public class MusicHeart {
 
     @Id
-    @Column(name = "musicheart_id", length = 20)
+    @Column(name = "musicheart_id")
     private String musicHeartId;
 
-    @Column(name = "heart_cnt", nullable = false)
+    @Column(name = "heart_cnt")
     private int heartCount;
 
-    @Column(name = "heart_date", nullable = false)
+    @Column(name = "heart_date")
     private LocalDateTime heartDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_email", nullable = false)
+    @JoinColumn(name = "user_email")
     private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "music_id", nullable = false)
+    @JoinColumn(name = "music_id")
     private Music music;
 
 

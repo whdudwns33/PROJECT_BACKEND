@@ -21,6 +21,8 @@ public class Member {
 
     private String userEmail;
     private String userPassword;
+
+    @Column(name = "userNickname")
     private String userNickname;
     private String userName;
     private String userAddr;

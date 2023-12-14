@@ -2,6 +2,9 @@ package com.projectBackend.project.controller;
 
 
 import com.projectBackend.project.dto.MusicDTO;
+import com.projectBackend.project.dto.MusicUserDto;
+import com.projectBackend.project.dto.UserReqDto;
+import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.service.MusicService;
 import lombok.RequiredArgsConstructor;
@@ -79,10 +82,15 @@ public class MusicController {
 
     //음악 등록
     @PostMapping("/new")
-    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicDTO musicDTO) {
-        MusicDTO addedMusic = musicService.addMusic(musicDTO);
+    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicUserDto musicUserDto) {
+
+        MusicDTO musicDto = musicUserDto.getMusicDTO();
+        UserReqDto userReqDTO = musicUserDto.getUserReqDto();
+        MusicDTO addedMusic = musicService.addMusic(musicDto, userReqDTO);
         return ResponseEntity.ok(addedMusic);
     }
+
+
 
     // 페이지네이션
     @GetMapping("/list/page")

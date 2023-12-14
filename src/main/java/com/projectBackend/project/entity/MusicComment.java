@@ -19,17 +19,17 @@ import java.time.LocalDateTime;
 public class MusicComment {
 
     @Id
-    @Column(name = "musiccomment_id", length = 20)
+    @Column(name = "musiccomment_id")
     private String musicCommentID;
 
-    @Column(name = "comment_content", length = 500, nullable = false)
+    @Column(name = "comment_content")
     private String commentContent;
 
-    @Column(name = "comment_Date", nullable = false)
+    @Column(name = "comment_Date")
     private LocalDateTime commentDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_email", nullable = false)
+    @JoinColumn(name = "user_email")
     private Member member;
 
 
