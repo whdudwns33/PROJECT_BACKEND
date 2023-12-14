@@ -2,10 +2,7 @@ package com.projectBackend.project.service;
 
 import com.projectBackend.project.dto.CommunityDTO;
 import com.projectBackend.project.entity.*;
-import com.projectBackend.project.repository.CommunityCategoryRepository;
-import com.projectBackend.project.repository.CommunityRepository;
-import com.projectBackend.project.repository.CommunityViewRepository;
-import com.projectBackend.project.repository.CommunityVoteRepository;
+import com.projectBackend.project.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CommunityService {
     private final CommunityRepository communityRepository;
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
     private final CommunityVoteRepository communityVoteRepository;
@@ -29,7 +26,7 @@ public class CommunityService {
             Community community = new Community();
 
             if (communityDTO.getEmail() != null && !communityDTO.getEmail().isEmpty()) {
-                Member member = memberRepository.findByEmail(communityDTO.getEmail()).orElseThrow(
+                Member member = memberRepository.findByUserEmail(communityDTO.getEmail()).orElseThrow(
                         () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
                 );
                 community.setMember(member);
@@ -202,7 +199,7 @@ public class CommunityService {
         communityDTO.setCategoryId(community.getCategory().getCategoryId());
 
         if (community.getMember() != null) {
-            communityDTO.setEmail(community.getMember().getEmail());
+            communityDTO.setEmail(community.getMember().getUserEmail());
         }
         communityDTO.setRegDate(community.getRegDate());
         return communityDTO;

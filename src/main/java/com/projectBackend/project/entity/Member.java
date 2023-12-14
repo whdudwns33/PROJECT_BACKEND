@@ -15,6 +15,7 @@ import javax.persistence.*;
 @Table(name = "user")
 public class Member {
     @Id
+    @Column(name = "user_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 

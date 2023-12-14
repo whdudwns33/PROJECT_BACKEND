@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CommunityCategoryRepository extends JpaRepository<CommunityCategory, Long> {
-    List<CommunityCategory> findByMemberEmail(String email);
+    List<CommunityCategory> findByMemberUserEmail(String userEmail);
 }

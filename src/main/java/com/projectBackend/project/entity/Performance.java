@@ -18,9 +18,9 @@ public class Performance {
     private Long performanceId;
     private String performanceName;
 
-    @OneToMany(mappedBy = "performance", orphanRemoval = true)
-//    @JoinColumn(name = "user_id") // 외래키
-    private Performer performer; // 공연 참여자
+//    @OneToMany(mappedBy = "performance", orphanRemoval = true)
+////    @JoinColumn(name = "user_id") // 외래키
+//    private Performer performer; // 공연 참여자
 
     private String venue;
     private String detailVenue;

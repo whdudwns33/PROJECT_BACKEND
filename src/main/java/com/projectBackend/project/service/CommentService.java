@@ -8,7 +8,7 @@ import com.projectBackend.project.entity.Community;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.repository.CommentRepository;
 import com.projectBackend.project.repository.CommunityRepository;
-import com.projectBackend.project.repository.MemberRepository;
+import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,7 +29,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final CommunityRepository communityRepository;
-    private final MemberRepository memberRepository;
+    private final UserRepository memberRepository;
     private final WebSocketHandler webSocketHandler;
 
     // 댓글 등록
@@ -40,7 +40,7 @@ public class CommentService {
                     ()-> new RuntimeException("해당 게시글이 존재하지 않습니다.")
             );
             if(commentDTO.getEmail() != null && !commentDTO.getEmail().isEmpty()){
-                Member member = memberRepository.findByEmail(commentDTO.getEmail()).orElse(null);
+                Member member = memberRepository.findByUserEmail(commentDTO.getEmail()).orElse(null);
                 if(member != null) { // 회원이 존재하는 경우
                     comment.setMember(member);
                 } else {
@@ -63,7 +63,7 @@ public class CommentService {
             commentRepository.save(comment);
 
             // 댓글 등록 후 알림 메시지 전송
-            String postEmail = community.getMember().getEmail();
+            String postEmail = community.getMember().getUserEmail();
             String postIpAddress = community.getIpAddress(); // 게시글 작성자의 IP 주소
             WebSocketSession postAuthorSession = webSocketHandler.getUserSessionMap().get(
                     postEmail != null ? postEmail : postIpAddress // 이메일이 없는 경우 IP 주소를 사용합니다.
@@ -154,7 +154,7 @@ public class CommentService {
         commentDTO.setContent(comment.getContent());
         commentDTO.setRegDate(comment.getRegDate());
         if (comment.getMember() != null) { // 회원이 존재하는 경우
-            commentDTO.setEmail(comment.getMember().getEmail());
+            commentDTO.setEmail(comment.getMember().getUserEmail());
         } else { // 회원이 존재하지 않는 경우
             commentDTO.setEmail(comment.getNickName()); // 닉네임을 이메일 필드에 설정
             commentDTO.setPassword(comment.getPassword());
