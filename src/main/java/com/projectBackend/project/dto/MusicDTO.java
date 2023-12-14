@@ -1,8 +1,10 @@
 package com.projectBackend.project.dto;
 
+
 import com.projectBackend.project.entity.Music;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -11,31 +13,34 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class MusicDTO {
+
     private String musicTitle;
-    private String artistName;
+    private String userNickname;
     private String lyricist;
     private String composer;
     private String genre;
     private int purchaseCount;
-    private int heartCount;
     private String lyrics;
-    private Date releaseDate;
+    private LocalDate releaseDate;
     private String thumbnailImage;
     private String promoImage;
+    private String musicInfo;
+
+    // 생성자, 게터, 세터 등은 생략
 
     public static MusicDTO of(Music music) {
         return MusicDTO.builder()
                 .musicTitle(music.getMusicTitle())
-                .artistName(music.getArtistName())
+                .userNickname(music.getMember().getUserNickname())
                 .lyricist(music.getLyricist())
                 .composer(music.getComposer())
                 .genre(music.getGenre())
                 .purchaseCount(music.getPurchaseCount())
-                .heartCount(music.getHeartCount())
                 .lyrics(music.getLyrics())
                 .releaseDate(music.getReleaseDate())
                 .thumbnailImage(music.getThumbnailImage())
                 .promoImage(music.getPromoImage())
+                .musicInfo(music.getMusicInfo())
                 .build();
     }
 }
