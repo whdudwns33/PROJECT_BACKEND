@@ -3,7 +3,9 @@ package com.projectBackend.project.controller;
 import com.projectBackend.project.dto.TokenDto;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
+import com.projectBackend.project.entity.Token;
 import com.projectBackend.project.jwt.TokenProvider;
+import com.projectBackend.project.service.KakaoService;
 import com.projectBackend.project.service.AuthService;
 import com.projectBackend.project.service.MailService;
 import lombok.Getter;
@@ -11,18 +13,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.web.bind.annotation.*;
+
 
 import static com.projectBackend.project.service.MailService.EPW;
-import static com.projectBackend.project.utils.Common.*;
 
 @Slf4j
 @RestController
@@ -33,6 +29,7 @@ import static com.projectBackend.project.utils.Common.*;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+    private final KakaoService kakaoService;
     private final TokenProvider tokenProvider;
     private final MailService mailService;
 
@@ -72,48 +69,32 @@ public class AuthController {
         return ResponseEntity.ok(authService.isNickName(nickName));
     }
 
-
-    // 카카오 로그인 및 토큰 발급
+    // 카카오 로그인 및 이메일 발급
     @GetMapping("/kakao")
-    public ResponseEntity<Map<String, Object>> kakao(@RequestParam String code) {
-        System.out.println(" code : " + code);
-        System.out.println(" clientId : " + clientId);
-        System.out.println(" redirectUri : " + redirectUri);
-        System.out.println(" clientSecret : " + clientSecret);
-        // HTTP 요청 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    public ResponseEntity<String> kakao(@RequestParam String code) {
+        log.info("code {} : ", code);
+        String email = kakaoService.kakaoToken(code);
+        return ResponseEntity.ok(email);
+    }
 
-        // HTTP 요청 바디에 담을 데이터 설정 (grant_type, client_id, redirect_uri, code, client_secret)
-        Map<String, String> requestBody = new HashMap<>();
-        requestBody.put("grant_type", "authorization_code");
-        requestBody.put("client_id", clientId);
-        requestBody.put("redirect_uri", redirectUri);
-        requestBody.put("code", code);
-        requestBody.put("client_secret", clientSecret);
+    // 카카오 로그인 이후 토큰 발급
+    @GetMapping("/kakaoToken")
+    public ResponseEntity<TokenDto> kakaoToken(@RequestParam String email) {
+        TokenDto tokenDto = authService.kakaoLogin(email);
+        return ResponseEntity.ok(tokenDto);
+    }
 
-        // URL 빌더를 사용하여 요청 URL 생성
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(kakaoTokenUrl);
-
-        // RestTemplate을 사용하여 POST 요청을 보내고 응답을 받아옴
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Map> response = restTemplate.postForEntity(builder.toUriString(), requestBody, Map.class);
-
-        // 받아온 응답을 그대로 클라이언트에게 전달 (상태 코드, 응답 데이터)
-        return ResponseEntity.ok(response.getBody());
+    // 이메일 중복 체크
+    @GetMapping("/email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        boolean isTrue = authService.isEmail(email);
+        return ResponseEntity.ok(isTrue);
     }
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserReqDto memberReqDto) {
-        return ResponseEntity.ok(authService.login(memberReqDto));
+    public ResponseEntity<TokenDto> login(@RequestBody UserReqDto userReqDto) {
+        TokenDto tokenDto = authService.login(userReqDto);
+        return ResponseEntity.ok(tokenDto);
     }
-
-
-
-
-
-   
-
-
 }

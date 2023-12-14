@@ -2,6 +2,8 @@ package com.projectBackend.project.repository;
 
 import com.projectBackend.project.entity.Member;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.Optional;
 
@@ -9,7 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@DataJpaTest
 class UserRepositoryTest {
+    @Autowired
+    UserRepository userRepository;
 
     @Test()
     public void testFindByUserNickname() {
@@ -33,5 +38,27 @@ class UserRepositoryTest {
         // 결과 확인
         assertEquals(fakeMember, result.orElse(null), "Expected Member not found");
     }
+
+    @Test
+    public void testFindByEmail() {
+        // 테스트 데이터 생성
+        Member member = new Member();
+        member.setUserEmail("test@example.com");
+        member.setUserNickname("testUser");
+        // 데이터 저장
+        userRepository.save(member);
+        // 회원 정보 조회
+        Member foundMember = userRepository.findByEmail("test@example.com");
+
+
+        System.out.println("member : " + foundMember);
+        System.out.println("test@example.com : " + foundMember.getUserEmail());
+        assertEquals("test@example.com", foundMember.getUserEmail());
+        // Add more assertions based on your Member entity and expected data
+    }
+
+
+
+
 
 }
