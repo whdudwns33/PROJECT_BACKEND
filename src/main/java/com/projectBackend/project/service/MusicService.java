@@ -15,6 +15,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -25,6 +26,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class MusicService {
     private final MusicRepository musicRepository;
     private final UserRepository userRepository;
@@ -119,50 +121,11 @@ public class MusicService {
     }
 
 
-    // 음악 등록
-    public MusicDTO addMusic(MusicDTO musicDTO, UserReqDto userReqDto) {
-        // 회원 객체 생성
-        Member member = findUser(userReqDto);
-        // 데이터 베이스에 음악 정보 저장
-        Music music = new Music();
-        music.setMusicTitle(musicDTO.getMusicTitle());
-        music.setLyricist(musicDTO.getLyricist());
-        music.setComposer(musicDTO.getComposer());
-        music.setGenre(musicDTO.getGenre());
-        music.setPurchaseCount(musicDTO.getPurchaseCount());
-        music.setLyrics(musicDTO.getLyrics());
-        music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
-        music.setThumbnailImage(musicDTO.getThumbnailImage());
-        music.setPromoImage(musicDTO.getPromoImage());
-        music.setMusicInfo(musicDTO.getMusicInfo());
-        music.setMember(member);
-        System.out.println("member : " + member);
-        System.out.println("music : " + music);
-        System.out.println("nickName : " + music.getMember().getUserNickname());
-        musicRepository.save(music);
-        
-        // 데이터 베이스에서 닉네임 정보를 가져와 DTO 로 전달
-        MusicDTO returnDTO = new MusicDTO();
-        returnDTO.setMusicTitle(music.getMusicTitle());
-        returnDTO.setComposer(music.getComposer());
-        returnDTO.setLyricist(music.getLyricist());
-        returnDTO.setGenre(music.getGenre());
-        returnDTO.setPurchaseCount(music.getPurchaseCount());
-        returnDTO.setLyrics(music.getLyrics());
-        returnDTO.setReleaseDate(music.getReleaseDate());
-        returnDTO.setThumbnailImage(music.getThumbnailImage());
-        returnDTO.setPromoImage(music.getPromoImage());
-        returnDTO.setUserNickname(music.getMember().getUserNickname());
-//        music.setMusicInfo(musicDTO.getMusicInfo());
-        log.info("returnDto : {}", returnDTO);
-        return returnDTO;
-    }
-
     // 음악 등록을 위해 유저의 닉네임으로 객체를 반환하는 메서드
     public Member findUser (UserReqDto userReqDto) {
         try {
             System.out.println("findByNickName try!!!");
-            String nickName = userReqDto.getUserName();
+            String nickName = userReqDto.getUserNickname();
             Optional<Member> memberOptional = userRepository.findByUserNickname(nickName);
             System.out.println("memberOptional" + memberOptional);
             // memberOptional가 비어있지 않다면 해당 엔티티 객체 반환
@@ -184,6 +147,60 @@ public class MusicService {
             return null;
         }
     }
+
+    // 음악 등록
+    public MusicDTO addMusic(MusicDTO musicDTO, UserReqDto userReqDto) {
+        try {
+            // 회원 객체 생성
+            Member member = findUser(userReqDto);
+            if (member == null) {
+                // 회원을 찾을 수 없는 경우 예외 처리
+                return null;
+            }
+            // 데이터 베이스에 음악 정보 저장
+            Music music = new Music();
+            music.setMusicTitle(musicDTO.getMusicTitle());
+            music.setLyricist(musicDTO.getLyricist());
+            music.setComposer(musicDTO.getComposer());
+            music.setGenre(musicDTO.getGenre());
+            music.setPurchaseCount(musicDTO.getPurchaseCount());
+            music.setLyrics(musicDTO.getLyrics());
+            music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
+            music.setThumbnailImage(musicDTO.getThumbnailImage());
+            music.setPromoImage(musicDTO.getPromoImage());
+            music.setMusicInfo(musicDTO.getMusicInfo());
+            music.setMember(member);
+            System.out.println("member : " + member);
+            System.out.println("music : " + music);
+            System.out.println("nickName : " + music.getMember().getUserNickname());
+
+
+
+            // 데이터 베이스에서 닉네임 정보를 가져와 DTO 로 전달
+            MusicDTO returnDTO = new MusicDTO();
+            returnDTO.setMusicTitle(music.getMusicTitle());
+            returnDTO.setComposer(music.getComposer());
+            returnDTO.setLyricist(music.getLyricist());
+            returnDTO.setGenre(music.getGenre());
+            returnDTO.setPurchaseCount(music.getPurchaseCount());
+            returnDTO.setLyrics(music.getLyrics());
+            returnDTO.setReleaseDate(music.getReleaseDate());
+            returnDTO.setThumbnailImage(music.getThumbnailImage());
+            returnDTO.setPromoImage(music.getPromoImage());
+            returnDTO.setUserNickname(music.getMember().getUserNickname());
+            musicRepository.save(music);
+//        music.setMusicInfo(musicDTO.getMusicInfo());
+            log.info("returnDto : {}", returnDTO);
+            return returnDTO;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("회원 정보 반환 실패");
+            return null;
+        }
+    }
+
+
 
     // DTO를 객체로 변환
     private Music convertDtoToEntity(MusicDTO musicDTO) {

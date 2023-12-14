@@ -30,7 +30,7 @@ public class Community {
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     private Member member;
 
     private int viewCount;
