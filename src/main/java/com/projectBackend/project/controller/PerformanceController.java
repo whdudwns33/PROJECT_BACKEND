@@ -32,7 +32,7 @@ public class PerformanceController {
 
     // 공연 등록
     @PostMapping("/new")
-    public ResponseEntity<Boolean> performanceRegister(@RequestBody PerformanceDto performanceDto) {
+    public ResponseEntity<Boolean> performanceRegister(@RequestBody PerformanceDto performanceDto ) {
         boolean isTrue = performanceService.savePerformance(performanceDto);
         return ResponseEntity.ok(isTrue);
     }

@@ -42,10 +42,6 @@ public class PerformanceService {
         boolean isTrue = false;
         try {
             Performance performance = new Performance();
-//             멤버 검증 필요
-            Member member = userRepository.findByUserNickname(performanceDto.getPerformer()).orElseThrow(
-                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
-            );
             performance.setPerformanceName(performanceDto.getPerformanceName());
             performance.setVenue(performanceDto.getVenue());
             performance.setDetailVenue(performanceDto.getDetailVenue());
@@ -54,17 +50,16 @@ public class PerformanceService {
             performance.setDescription(performanceDto.getDescription());
             performance.setSeatCount(performanceDto.getSeatCount());
             performance.setPerformanceImage(performanceDto.getPerformanceImage());
-            performanceRepository.save(performance);
-            isTrue = true;
-            if (isTrue) {
+            performance = performanceRepository.save(performance);
+
+            for (String performerName : performanceDto.getPerformer()) {
+                Member member = userRepository.findByUserNickname(performerName)
+                        .orElseThrow(() -> new RuntimeException("해당 회원이 존재하지 않습니다."));
                 Performer performer = new Performer();
                 performer.setPerformance(performance);
                 performer.setMember(member);
                 performerRepository.save(performer);
-            } else {
-                return false;
             }
-
 
             return true;
         } catch (Exception e) {
@@ -72,6 +67,38 @@ public class PerformanceService {
             return false;
         }
     }
+//        try {
+//            Performance performance = new Performance();
+////             멤버 검증 필요
+//            Member member = userRepository.findByUserNickname(performanceDto.getPerformer().toString()).orElseThrow(
+//                    () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
+//            );
+//            performance.setPerformanceName(performanceDto.getPerformanceName());
+//            performance.setVenue(performanceDto.getVenue());
+//            performance.setDetailVenue(performanceDto.getDetailVenue());
+//            performance.setPerformanceDate(performanceDto.getPerformanceDate());
+//            performance.setPrice(performanceDto.getPrice());
+//            performance.setDescription(performanceDto.getDescription());
+//            performance.setSeatCount(performanceDto.getSeatCount());
+//            performance.setPerformanceImage(performanceDto.getPerformanceImage());
+//            performanceRepository.save(performance);
+//            isTrue = true;
+//            if (isTrue) {
+//                Performer performer = new Performer();
+//                performer.setPerformance(performance);
+//                performer.setMember(member);
+//                performerRepository.save(performer);
+//            } else {
+//                return false;
+//            }
+//
+//
+//            return true;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return false;
+//        }
+//    }
 
     // 공연 삭제
     public void deleteAll() {
