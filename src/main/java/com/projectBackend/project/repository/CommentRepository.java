@@ -14,4 +14,5 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Page<Comment> findByCommunity(Community community, Pageable pageable);
 
+    int countByCommunity(Community community);
 }
