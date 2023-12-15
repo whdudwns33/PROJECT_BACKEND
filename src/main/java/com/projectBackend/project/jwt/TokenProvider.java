@@ -3,12 +3,15 @@ package com.projectBackend.project.jwt;
 
 
 import com.projectBackend.project.dto.TokenDto;
+import com.projectBackend.project.entity.Token;
+import com.projectBackend.project.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,9 +32,12 @@ import java.util.stream.Collectors;
 public class TokenProvider {
     private static final String AUTHORITIES_KEY ="auth";
     private static final String BEARER_TYPE = "Bearer"; // 토큰의 타입
-    private static final long ACCESS_TOKEN_EXPIRE_TIME = 30000; //
-    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 60 * 24; // 24시간
+    private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60; //
+    private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000 * 60 * 10;
     private final Key key; // 토큰을 서명(signiture)하기 위한 Key
+
+    @Autowired
+    private TokenRepository tokenRepository;
 
 
     //
@@ -133,6 +140,7 @@ public class TokenProvider {
         }
     }
 
+    // 액세스 토큰을 사용하여 Spring Security의 Authentication 객체를 생성
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
         // 토큰의 claim 부분에서 권한 정보를 체크. 만약 권한이 없다면 null 반환
@@ -167,5 +175,55 @@ public class TokenProvider {
             log.info("JWT 토큰이 잘못되었습니다.");
         }
         return false;
+    }
+    
+    // refresh 토큰의 유효성 검사
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Claims refreshTokenClaims = parseClaims(refreshToken);
+
+            // refreshToken이 유효한지 확인
+            if (refreshTokenClaims.get(AUTHORITIES_KEY) != null) {
+                System.out.println("리프레쉬 토큰은 유효");
+                // 추가적인 유효성 검사를 수행할 수 있습니다.
+                // 유효한 경우 true 반환
+                return true;
+            } else {
+                System.out.println("리프레쉬 토큰은 유효하지 않음");
+                // 권한 정보가 없는 경우 또는 다른 유효성 검사 실패 시 false 반환
+                return false;
+            }
+        } catch (ExpiredJwtException e) {
+            // refreshToken이 만료된 경우
+            log.info("만료된 refresh 토큰입니다.");
+        } catch (SecurityException | io.jsonwebtoken.MalformedJwtException e) {
+            log.info("잘못된 JWT 서명입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT 토큰이 잘못되었습니다.");
+        }
+
+        // 예외가 발생하거나 유효성 검사에 실패한 경우 false 반환
+        return false;
+    }
+
+
+//    // 저장되어 있는 토큰 가져오기
+//    public String findToken(String email) {
+//        Optional<Token> token = tokenRepository.findByUserEmail(email);
+//        Token tokenData = token.get();
+//        System.out.println("토큰 정보 : " + tokenData);
+//        String refreshToken = tokenData.getRefreshToken();
+//        return refreshToken;
+//    }
+//
+//    // 토큰
+
+
+
+    // access 토큰 재발급
+    public String generateAccessToken(Authentication authentication) {
+        return generateTokenDto(authentication).getAccessToken();
     }
 }

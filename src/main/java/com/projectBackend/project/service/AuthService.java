@@ -5,6 +5,7 @@ import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.dto.TokenDto;
 import com.projectBackend.project.entity.Member;
+import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.entity.Token;
 import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.TokenRepository;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -63,8 +65,6 @@ public class AuthService {
                 // userEntity 객체의 정보를 데이터 베이스 객체로 생성
                 Member user = userEntity.get();
                 System.out.println("로그인 user : " + user);
-                // 토큰 저장 전 토큰 데이터 삭제
-                tokenRepository.deleteAllById(Collections.singleton(user.getId()));
                 // 토큰 발급
                 TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
                 String refreshToken = tokenDto.getRefreshToken();
@@ -85,6 +85,55 @@ public class AuthService {
             return null;
         }
     }
+
+    // 로그인 상태 확인
+    // 이메일을 참조하여 해당
+    public boolean isLogined(String email) {
+        try {
+            if (email != null) {
+                Optional<Member> member = userRepository.findByUserEmail(email);
+                if (member.isPresent()) {
+                    Member user = member.get();
+                    System.out.println("로그인 정보 : " + user);
+                    // 리프레쉬 토큰을 불러오기 위한 id
+                    Long id = user.getId();
+                    // 데이터 베이스의 리프레쉬 토큰
+                    List<Token> tokens = tokenRepository.findAllByMemberId(id);
+                    System.out.println("토큰 tokens : " + tokens);
+                    // 가장 최근의 리프레쉬 데이터
+                    if (!tokens.isEmpty()) {
+                        Token token = tokens.get(tokens.size() - 1);
+                            log.info("token : {}", token);
+                            // 불러온 리프레쉬 토큰
+                            String refreshToken = token.getRefreshToken();
+                            log.info("refreshToken : {}", refreshToken);
+                            // 토큰 유효성 체크
+                            return tokenProvider.validateRefreshToken(refreshToken);
+                        } else {
+                            return false;
+                    }
+                } else {
+                    System.out.println("해당 회원 정보가 없습니다.");
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("로그인 상태가 아닙니다.");
+            return false;
+        }
+    }
+
+    // accessToken 재발급
+    public String createAccessToken(String refreshToken) {
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        return tokenProvider.generateAccessToken(authentication);
+    }
+
 
     // 카카오 로그인 => 카카오 토큰이 존재하지만, 사용하지 않을 생각
     public TokenDto kakaoLogin(String email) {
@@ -138,6 +187,10 @@ public class AuthService {
         log.warn("닉네임 중복 확인 {} : ", isTrue);
         return isTrue;
     }
+
+
+
+
 
 
 }
