@@ -1,6 +1,7 @@
 package com.projectBackend.project.controller;
 
 import com.projectBackend.project.dto.CommunityDTO;
+import com.projectBackend.project.entity.Community;
 import com.projectBackend.project.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,7 +50,7 @@ public class CommunityController {
     // 게시글 목록 페이징
     @GetMapping("/list/page")
     public ResponseEntity<List<CommunityDTO>> boardList(@RequestParam(defaultValue = "0") int page,
-                                                    @RequestParam(defaultValue = "10") int size) {
+                                                        @RequestParam(defaultValue = "10") int size) {
         List<CommunityDTO> list = communityService.getCommunityList(page, size);
         return ResponseEntity.ok(list);
     }
@@ -90,5 +91,10 @@ public class CommunityController {
             String message = isUpvote ? "이미 추천하셨습니다." : "이미 비추천하셨습니다.";
             return ResponseEntity.badRequest().body(message);
         }
+    }
+    // 개념글 랭킹 목록
+    @GetMapping("/ranking/realtime")
+    public ResponseEntity<List<Community>> getRealtimeRanking() {
+        return ResponseEntity.ok(communityService.getRealtimeRanking());
     }
 }

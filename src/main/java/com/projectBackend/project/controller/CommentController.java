@@ -23,6 +23,12 @@ public class CommentController {
         boolean result = commentService.commentRegister(commentDTO);
         return ResponseEntity.ok(result);
     }
+    @PostMapping("/reply/new")
+    public ResponseEntity<Boolean> replyRegister(@RequestBody CommentDTO commentDTO) {
+        log.info("commentDto: {}", commentDTO);
+        boolean result = commentService.replyRegister(commentDTO);
+        return ResponseEntity.ok(result);
+    }
     // 댓글 수정
     @PutMapping("/modify")
     public ResponseEntity<Boolean> commentModify(@RequestBody CommentDTO commentDTO) {
@@ -37,9 +43,9 @@ public class CommentController {
     }
     // 댓글 목록 조회
     @GetMapping("/list/{boardId}")
-    public ResponseEntity<List<CommentDTO>> commentList(@PathVariable Long boardId) {
-        log.info("boardId: {}", boardId);
-        List<CommentDTO> list = commentService.getCommentList(boardId);
+    public ResponseEntity<List<CommentDTO>> commentList(@PathVariable Long boardId, @RequestParam(defaultValue = "등록순") String sortType, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        log.info("boardId: {}, sortType: {}, page: {}, size: {}", boardId, sortType, page, size);
+        List<CommentDTO> list = commentService.getCommentList(boardId, sortType, page, size);
         return ResponseEntity.ok(list);
     }
     // 댓글 목록 페이징
@@ -48,7 +54,6 @@ public class CommentController {
         Page<CommentDTO> list = commentService.getCommentListPage(boardId, pageable);
         return ResponseEntity.ok(list);
     }
-    // 댓글 상세 조회
     // 댓글 검색
     @GetMapping("/search")
     public ResponseEntity<List<CommentDTO>> commentSearch(@RequestParam String keyword) {

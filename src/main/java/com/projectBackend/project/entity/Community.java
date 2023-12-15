@@ -1,4 +1,5 @@
 package com.projectBackend.project.entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,6 +30,7 @@ public class Community {
         regDate = LocalDateTime.now();
     }
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
@@ -41,10 +43,15 @@ public class Community {
     @Column(name = "path")
     private List<String> mediaPaths;
 
-    @ManyToOne(fetch = FetchType.LAZY) // 지연 전략
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CommunityCategory category; // 카테고리
 
+    @Column(name = "category_name")
+    private String categoryName; // 카테고리 이름
+
+    private String email;
     @Column(name = "ip_address")
     private String ipAddress;
     private String nickName;

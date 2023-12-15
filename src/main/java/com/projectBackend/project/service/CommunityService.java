@@ -4,20 +4,24 @@ import com.projectBackend.project.dto.CommunityDTO;
 import com.projectBackend.project.entity.*;
 import com.projectBackend.project.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CommunityService {
     private final CommunityRepository communityRepository;
     private final UserRepository memberRepository;
+    private final CommentRepository commentRepository;
     private final CommunityCategoryRepository categoryRepository;
     private final CommunityViewRepository viewRepository;
     private final CommunityVoteRepository communityVoteRepository;
@@ -30,6 +34,7 @@ public class CommunityService {
                         () -> new RuntimeException("해당 회원이 존재하지 않습니다.")
                 );
                 community.setMember(member);
+                community.setEmail(member.getUserEmail());
             } else {
                 String clientIp = request.getHeader("X-Forwarded-For");
 
@@ -46,6 +51,7 @@ public class CommunityService {
 
             community.setTitle(communityDTO.getTitle());
             community.setCategory(category);
+            community.setCategoryName(category.getCategoryName());
             community.setContent(communityDTO.getContent());
             community.setMediaPaths(communityDTO.getMedias());
             communityRepository.save(community);
@@ -184,6 +190,30 @@ public class CommunityService {
         vote.setUpvote(isUpvote);
         communityVoteRepository.save(vote);
     }
+
+    // 조회수, 추천 수, 댓글 수를 고려한 복합 점수 계산
+    private float calculateScore(Community post) {
+        int commentCount = commentRepository.countByCommunity(post);  // 댓글 수를 구함
+        return post.getViewCount() * 0.3f + post.getVoteCount() * 0.5f + commentCount * 0.2f;
+    }
+    // 실시간 랭킹
+    public List<Community> getRealtimeRanking() {
+        // 최근 1시간 이내의 게시글을 대상으로 함
+        LocalDateTime oneHourAgo = LocalDateTime.now().minusHours(1);
+
+        // 게시글을 불러옴
+        List<Community> posts = communityRepository.findByRegDateAfter(oneHourAgo);
+
+
+        // 복합 점수를 계산하여 랭킹을 매김
+        posts.sort((post1, post2) -> Float.compare(calculateScore(post2), calculateScore(post1)));
+
+        log.warn(posts.toString());
+
+        // 상위 10개 게시글만 반환함
+        return posts.subList(0, Math.min(10, posts.size()));
+    }
+
     // 게시글 엔티티를 DTO로 변환
     private CommunityDTO convertEntityToDTO(Community community) {
         CommunityDTO communityDTO = new CommunityDTO();
@@ -192,11 +222,13 @@ public class CommunityService {
         communityDTO.setContent(community.getContent());
         communityDTO.setIpAddress(community.getIpAddress());
         communityDTO.setMedias(community.getMediaPaths());
+        communityDTO.setEmail(community.getEmail());
         communityDTO.setNickName(community.getNickName());
         communityDTO.setPassword(community.getPassword());
         communityDTO.setViewCount(community.getViewCount());
         communityDTO.setVoteCount(community.getVoteCount());
         communityDTO.setCategoryId(community.getCategory().getCategoryId());
+        communityDTO.setCategoryName(community.getCategoryName());
 
         if (community.getMember() != null) {
             communityDTO.setEmail(community.getMember().getUserEmail());

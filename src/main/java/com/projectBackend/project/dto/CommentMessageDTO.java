@@ -15,5 +15,4 @@ public class CommentMessageDTO {
     private String commentContent;
     private String commenterEmail;
     private String authorEmail;
-    private String authorIP;
 }
