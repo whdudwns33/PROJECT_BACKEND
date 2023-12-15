@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface MusicCommentRepository extends JpaRepository<MusicComment, Long> {
     List<MusicComment> findByCommentContentContaining(String keyword);
+
+    List<MusicComment>findByMusicId(Long musicId);
 }

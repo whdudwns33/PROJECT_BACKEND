@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -86,26 +83,55 @@ public class MusicCommentService {
 
     // 모든 음악 댓글 조회
     public List<MusicCommentDTO> getAllMusicComments() {
-        List<MusicComment> musicComments = musicCommentRepository.findAll();
-        return musicComments.stream()
-                .map(this::convertEntityToDTO) // Entity를 DTO로 변환하는 메서드 호출
-                .collect(Collectors.toList());
+        try {
+            List<MusicComment> musicComments = musicCommentRepository.findAll();
+            List<MusicCommentDTO> musicCommentDTOs = new ArrayList<>();
+
+            for (MusicComment musicComment : musicComments) {
+                musicCommentDTOs.add(convertEntityToDTO(musicComment));
+            }
+
+            return musicCommentDTOs;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     // 특정 ID의 음악 댓글 조회
-    public MusicCommentDTO getMusicCommentById(Long musicCommentId) {
-        Optional<MusicComment> musicCommentOptional = musicCommentRepository.findById(musicCommentId);
-        return musicCommentOptional.map(this::convertEntityToDTO).orElse(null);
+    public List<MusicCommentDTO> getMusicCommentsByMusicId(Long musicId) {
+        try {
+            List<MusicComment> musicComments = musicCommentRepository.findByMusicId(musicId);
+            List<MusicCommentDTO> musicCommentDTOs = new ArrayList<>();
+
+            for (MusicComment musicComment : musicComments) {
+                musicCommentDTOs.add(convertEntityToDTO(musicComment));
+            }
+
+            return musicCommentDTOs;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
 
     // 특정 키워드를 포함한 음악 댓글 검색
-    public List<MusicCommentDTO> searchMusicComment(String keyword) {
-        List<MusicComment> musicComments = musicCommentRepository.findByCommentContentContaining(keyword);
-        return musicComments.stream()
-                .map(this::convertEntityToDTO) // Entity를 DTO로 변환하는 메서드 호출
-                .collect(Collectors.toList());
+    public List<MusicCommentDTO> searchMusicComments(String keyword) {
+        try {
+            List<MusicComment> musicComments = musicCommentRepository.findByCommentContentContaining(keyword);
+            List<MusicCommentDTO> musicCommentDTOs = new ArrayList<>();
+
+            for (MusicComment musicComment : musicComments) {
+                musicCommentDTOs.add(convertEntityToDTO(musicComment));
+            }
+
+            return musicCommentDTOs;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 
@@ -120,5 +146,3 @@ public class MusicCommentService {
         return musicCommentDTO;
     }
 }
-
-
