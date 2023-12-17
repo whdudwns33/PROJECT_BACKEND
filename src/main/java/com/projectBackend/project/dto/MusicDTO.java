@@ -14,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class MusicDTO {
+    private Long id;
 
     private String musicTitle;
     private String userNickname;
@@ -67,3 +68,4 @@ public class MusicDTO {
 
 
 }
+

@@ -8,5 +8,8 @@ import lombok.Setter;
 @Setter
 public class MusicUserDto {
     private MusicDTO musicDTO;
+    // 프론트에서 백으로 요청
     private UserReqDto userReqDto;
+    // 백에서 프론트로 요청
+    private UserResDto userResDto;
 }

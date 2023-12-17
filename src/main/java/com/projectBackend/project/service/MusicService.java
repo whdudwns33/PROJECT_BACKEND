@@ -2,6 +2,7 @@ package com.projectBackend.project.service;
 
 
 import com.projectBackend.project.dto.MusicDTO;
+import com.projectBackend.project.dto.MusicUserDto;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
@@ -32,13 +33,40 @@ public class MusicService {
     private final UserRepository userRepository;
 
     //음악 전체 조회
-    public List<MusicDTO> getAllMusic() {
+    public List<MusicUserDto> getAllMusic() {
+        // 리스트 정보를 뽑아옴
         List<Music> musics = musicRepository.findAll();
-        List<MusicDTO> musicDTOS = new ArrayList<>();
+        // 닉네임 값을 뽑아 옴
+        List<String> nickNames = new ArrayList<>();
         for (Music music : musics) {
-            musicDTOS.add(convertEntityToDto(music));
+            nickNames.add(music.getMember().getUserNickname());
         }
-        return musicDTOS;
+        System.out.println("user nickname list" + nickNames);
+        // music & user data 전달
+        List<MusicUserDto> musicUserDtos = new ArrayList<>();
+        for (int i = 0; i < musics.size(); i++) {
+            // i 번째 엔티티 객체
+            Music music = musics.get(i);
+            System.out.println(i + "music " + music);
+            // music Dto로 변환
+            MusicDTO musicDTO = convertEntityToDto(music);
+            System.out.println(i + "musicDto : " + musicDTO);
+            // 닉네임 값
+            String nickname = nickNames.get(i);
+            System.out.println(i + "nickname1 : " + nickname);
+            // user dto
+            UserResDto userResDto = new UserResDto();
+            userResDto.setUserNickname(nickname);
+            // 최종 응답 dto
+            MusicUserDto musicUserDto = new MusicUserDto();
+            musicUserDto.setMusicDTO(musicDTO);
+            musicUserDto.setUserResDto(userResDto); // 닉네임 값 설정
+            // 최종 응답 dto list
+            musicUserDtos.add(musicUserDto);
+        }
+        System.out.println("final musicUserDtos : " + musicUserDtos);
+
+        return musicUserDtos;
     }
 
     //상세 조회
@@ -170,6 +198,8 @@ public class MusicService {
             music.setPromoImage(musicDTO.getPromoImage());
             music.setMusicInfo(musicDTO.getMusicInfo());
             music.setMember(member);
+
+            musicRepository.save(music);
             System.out.println("member : " + member);
             System.out.println("music : " + music);
             System.out.println("nickName : " + music.getMember().getUserNickname());
@@ -188,10 +218,12 @@ public class MusicService {
             returnDTO.setThumbnailImage(music.getThumbnailImage());
             returnDTO.setPromoImage(music.getPromoImage());
             returnDTO.setUserNickname(music.getMember().getUserNickname());
+            returnDTO.setMusicInfo(music.getMusicInfo());
             musicRepository.save(music);
-//        music.setMusicInfo(musicDTO.getMusicInfo());
+
             log.info("returnDto : {}", returnDTO);
-            return returnDTO;
+//            return returnDTO;
+            return MusicDTO.of(music);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -234,6 +266,7 @@ public class MusicService {
     // 엔티티 객체를 DTO로 변환
     private MusicDTO convertEntityToDto(Music music) {
         MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setId(music.getMusicId());
         musicDTO.setMusicTitle(music.getMusicTitle());
         musicDTO.setComposer(music.getComposer());
         musicDTO.setLyricist(music.getLyricist());
@@ -243,7 +276,7 @@ public class MusicService {
         musicDTO.setReleaseDate(music.getReleaseDate());
         musicDTO.setThumbnailImage(music.getThumbnailImage());
         musicDTO.setPromoImage(music.getPromoImage());
-        music.setMusicInfo(musicDTO.getMusicInfo());
+        musicDTO.setMusicInfo(music.getMusicInfo());
         return musicDTO;
     }
 }
