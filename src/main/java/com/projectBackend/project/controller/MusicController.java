@@ -12,8 +12,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //import static com.projectBackend.project.utils.Common.CORS_ORIGIN;
@@ -34,15 +37,15 @@ public class MusicController {
 
     //음악 리스트 조회
     @GetMapping("/musiclist")
-    public ResponseEntity<List<MusicDTO>> musicList() {
-        List<MusicDTO> list = musicService.getAllMusic();
+    public ResponseEntity<List<MusicUserDto>> musicList() {
+        List<MusicUserDto> list = musicService.getAllMusic();
         return ResponseEntity.ok(list);
     }
 
     //음악 상세 조회
     @GetMapping("detail/{id}")
-    public ResponseEntity<MusicDTO> getMusicById(@PathVariable Long id) {
-        MusicDTO music = musicService.getMusicById(id);
+    public ResponseEntity<MusicUserDto> getMusicById(@PathVariable Long id) {
+        MusicUserDto music = musicService.getMusicById(id);
         if (music != null) {
             return ResponseEntity.ok(music);
         } else  {
@@ -52,11 +55,21 @@ public class MusicController {
 
     //음악 검색
     @GetMapping("/search")
-    public  ResponseEntity<List<MusicDTO>> searchMusic(@RequestParam String keyword) {
-        List<MusicDTO> foundMusic = musicService.searchMusic(keyword);
-        if (!foundMusic.isEmpty()) {
-            return ResponseEntity.ok(foundMusic);
-        }else  {
+    public ResponseEntity<List<MusicDTO>> searchMusic(@RequestParam String keyword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String nickname = authentication.getName();
+
+        List<MusicUserDto> foundMusic = musicService.searchMusic(keyword, nickname);
+        List<MusicDTO> musicDTOs = new ArrayList<>();
+
+        for (MusicUserDto musicUserDto : foundMusic) {
+            MusicDTO musicDTO = convertToMusicDTO(musicUserDto); // MusicUserDto를 MusicDTO로 변환하는 로직 추가
+            musicDTOs.add(musicDTO);
+        }
+
+        if (!musicDTOs.isEmpty()) {
+            return ResponseEntity.ok(musicDTOs);
+        } else {
             return ResponseEntity.notFound().build();
         }
     }
@@ -109,4 +122,10 @@ public class MusicController {
         return ResponseEntity.ok(count);
     }
 
+
+    private MusicDTO convertToMusicDTO(MusicUserDto musicUserDto) {
+        MusicDTO musicDTO = new MusicDTO();
+        // MusicUserDto를 MusicDTO로 변환하는 로직 작성
+        return musicDTO;
+    }
 }
