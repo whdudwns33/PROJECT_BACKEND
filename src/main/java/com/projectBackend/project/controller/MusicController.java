@@ -128,4 +128,15 @@ public class MusicController {
         // MusicUserDto를 MusicDTO로 변환하는 로직 작성
         return musicDTO;
     }
+    // 길종환
+    // 맴버가 가지고 있는 음원 가져오기
+    @GetMapping("/user/{userId}/music")
+    public ResponseEntity<List<MusicUserDto>> getUserMusic(@PathVariable Long userId) {
+        List<MusicUserDto> list = musicService.getMusicByUserId(userId);
+        if (list != null && !list.isEmpty()) {
+            return ResponseEntity.ok(list);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

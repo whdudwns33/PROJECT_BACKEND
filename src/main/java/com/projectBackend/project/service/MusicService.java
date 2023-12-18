@@ -328,5 +328,19 @@ public class MusicService {
 
         return musicUserDto;
     }
+    // 길종환
+    public List<MusicUserDto> getMusicByUserId(Long userId) {
+        Member member = userRepository.findById(userId).orElse(null);
+        if (member == null) {
+            return null;
+        }
+        List<Music> musics = musicRepository.findByMember(member);
+        List<MusicUserDto> musicUserDtos = new ArrayList<>();
+        for (Music music : musics) {
+            MusicUserDto musicUserDto = convertEntityToUserDto(music, member.getUserNickname());
+            musicUserDtos.add(musicUserDto);
+        }
+        return musicUserDtos;
+    }
 }
 
