@@ -89,6 +89,7 @@ public class MailService {
     public boolean sendSimpleMessage(String to) throws Exception {
         // to는 email로 중복 체크를 한다.
         boolean isTrue = userRepository.existsByUserEmail(to);
+        System.out.println("이메일 중복 체크 : " + isTrue);
         if (!isTrue) {
             ePw = createKey(); // 랜덤 인증번호 생성
             System.out.println("ePw : " + ePw);

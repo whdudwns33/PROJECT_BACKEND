@@ -113,6 +113,9 @@ public class AuthController {
         log.info("refreshToken: {}", refreshToken);
         return ResponseEntity.ok(authService.createAccessToken(refreshToken));
     }
+
+
+
     // 길종환
     @GetMapping("/infoByToken")
     public UserResDto getUserInfoByToken(@RequestHeader("Authorization") String token) {
