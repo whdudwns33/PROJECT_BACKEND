@@ -2,20 +2,26 @@ package com.projectBackend.project.service;
 
 
 import com.projectBackend.project.dto.PerformanceDto;
+import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Performance;
 import com.projectBackend.project.entity.Performer;
+import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.PerformanceRepository;
 import com.projectBackend.project.repository.PerformerRepository;
 import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,6 +30,7 @@ public class PerformanceService {
     private final PerformanceRepository performanceRepository;
     private final PerformerRepository performerRepository;
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
     // 공연 조회
     public List<PerformanceDto> getPerformanceList() {
@@ -134,5 +141,92 @@ public class PerformanceService {
         performanceDto.setSeatCount(performance.getSeatCount());
         performanceDto.setPerformanceImage(performance.getPerformanceImage());
         return performanceDto;
+    }
+
+    // 토큰으로 공연 조회
+//    public UserResDto getUserPerformanceInfo(String token) {
+//        String email = tokenProvider.getUserEmail(token); // 토큰에서 이메일 추출
+//        Optional<Member> optionalMember = userRepository.findByUserEmail(email); // 이메일로 멤버 조회
+//
+//        if (optionalMember.isPresent()) { // 멤버가 존재하면
+//            Member member = optionalMember.get();
+//            Long id = member.getId(); // 멤버의 (PK)id 추출
+//            //멤버의 PK로 연결된 공연 정보 조회
+//            List<Performer> performers = performerRepository.findByMember_Id(id);
+//            // Performer의 Performance를 가져와 리스트에 추가합니다.
+//            List<Performance> performances = performers.stream()
+//                    .map(Performer::getPerformance)
+//                    .collect(Collectors.toList());
+//
+//            List<String> nicknames = new ArrayList<>();
+//            // 각 공연에 참여한 멤버의 닉네임을 리스트에 추가합니다.
+//            for (Performance performance : performances) {
+//                // 공연에 참여한 멤버들을 조회합니다.
+//                List<Performer> relatedPerformers =
+//                    performerRepository.findByPerformance_PerformanceId(performance.getPerformanceId());
+//                for (Performer performer : relatedPerformers) {
+//                    nicknames.add(performer.getMember().getUserNickname());
+//                }
+//            }
+//            // UserResDto 객체를 생성하고, 공연 정보와 닉네임 리스트를 설정합니다.
+//            UserResDto userResDto = new UserResDto();
+//            userResDto.setPerformances(performances);
+//            userResDto.setNicknames(nicknames);
+//            return userResDto;
+//        } else {
+//            // 멤버가 존재하지 않는 경우, 빈 UserResDto 객체를 반환합니다.
+//            UserResDto userResDto = new UserResDto();
+//            userResDto.setPerformances(Collections.emptyList());
+//            userResDto.setNicknames(Collections.emptyList());
+//            return userResDto;
+//        }
+//    }
+    // 이메일으로 공연 조회
+    public UserResDto getUserByEmail(String email) {
+        Optional<Member> optionalMember = userRepository.findByUserEmail(email); // 이메일로 멤버 조회
+
+        if (optionalMember.isPresent()) { // 멤버가 존재하면
+            Member member = optionalMember.get();
+            Long id = member.getId(); // 멤버의 (PK)id 추출
+            //멤버의 PK로 연결된 공연 정보 조회
+            List<Performer> performers = performerRepository.findByMember_Id(id);
+            // Performer의 Performance를 가져와 리스트에 추가합니다.
+            List<PerformanceDto> performanceDtos = performers.stream()
+                    .map(performer -> {
+                        Performance performance = performer.getPerformance();
+                        Hibernate.initialize(performance); // 프록시 객체를 초기화합니다.
+                        PerformanceDto performanceDto = convertEntityToDto(performance);
+                        // 공연에 참여한 멤버들을 조회합니다.
+                        List<Performer> relatedPerformers =
+                                performerRepository.findByPerformance_PerformanceId(performance.getPerformanceId());
+                        List<String> nicknames = relatedPerformers.stream()
+                                .map(relatedPerformer -> relatedPerformer.getMember().getUserNickname())
+                                .collect(Collectors.toList());
+                        performanceDto.setNicknames(nicknames); // 닉네임 설정
+                        return performanceDto;
+                    })
+                    .collect(Collectors.toList());
+            // UserResDto 객체를 생성하고, 공연 정보를 설정합니다.
+            UserResDto userResDto = new UserResDto();
+            userResDto.setPerformances(performanceDtos);
+//            // 다른 필드들을 null로 설정합니다.
+//            userResDto.setUserEmail(null);
+//            userResDto.setUserPasswword(null);
+//            userResDto.setUserNickname(null);
+//            userResDto.setUserName(null);
+//            userResDto.setUserAddr(null);
+//            userResDto.setUserPhone(null);
+//            userResDto.setUserGen(null);
+//            userResDto.setUserAge(null);
+//            userResDto.setUserPoint(null);
+//            userResDto.setAuthority(null);
+//            userResDto.setBUSINESS_NUM(null);
+            return userResDto;
+        } else {
+            // 멤버가 존재하지 않는 경우, 빈 UserResDto 객체를 반환합니다.
+            UserResDto userResDto = new UserResDto();
+            userResDto.setPerformances(Collections.emptyList());
+            return userResDto;
+        }
     }
 }

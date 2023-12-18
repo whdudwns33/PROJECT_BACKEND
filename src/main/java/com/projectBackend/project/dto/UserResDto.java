@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,6 +26,13 @@ public class UserResDto {
     private String BUSINESS_NUM;
     @Enumerated(EnumType.STRING)
     private Authority authority;
+
+    // 장현준 이메일로 공연조회용
+    private List<PerformanceDto> performances;
+    //    private List<String> nicknames;
+    public void setPerformances(List<PerformanceDto> performances) {
+        this.performances = performances;
+    }
 
     // Member -> MemberResDto
     public static UserResDto of(Member member) {

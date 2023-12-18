@@ -1,5 +1,6 @@
 package com.projectBackend.project.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import javax.persistence.*;
 @Table(name = "performance")
 @Getter @Setter @ToString
 @NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Performance {
     @Id
     @Column(name = "performance_id")
