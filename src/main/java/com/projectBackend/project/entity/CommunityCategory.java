@@ -19,7 +19,7 @@ public class CommunityCategory {
     private Long categoryId;
     private String categoryName;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "user_id")
     private Member member;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
