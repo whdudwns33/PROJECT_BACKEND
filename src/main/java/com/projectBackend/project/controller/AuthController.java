@@ -91,25 +91,4 @@ public class AuthController {
         return ResponseEntity.ok(isTrue);
     }
 
-    // 로그인
-    @PostMapping("/login")
-    public ResponseEntity<TokenDto> login(@RequestBody UserReqDto userReqDto) {
-        TokenDto tokenDto = authService.login(userReqDto);
-        return ResponseEntity.ok(tokenDto);
-    }
-
-    // 로그인 상태 체크 (+ refresh 토큰 유효성 체크)
-    @GetMapping("/isLogin/{email}")
-    public ResponseEntity<Boolean> isLogin(@PathVariable String email) {
-        boolean isTrue = authService.isLogined(email);
-        return ResponseEntity.ok(isTrue);
-    }
-
-    // accessToken 재발급
-    @PostMapping("/refresh")
-    public ResponseEntity<String> refreshToken(@RequestBody String refreshToken) {
-        System.out.println("새로운 토큰 발급");
-        log.info("refreshToken: {}", refreshToken);
-        return ResponseEntity.ok(authService.createAccessToken(refreshToken));
-    }
 }
