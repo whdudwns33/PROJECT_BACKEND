@@ -3,6 +3,7 @@ package com.projectBackend.project.controller;
 import com.projectBackend.project.dto.TokenDto;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
+import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Token;
 import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.service.KakaoService;
@@ -111,5 +112,15 @@ public class AuthController {
         System.out.println("새로운 토큰 발급");
         log.info("refreshToken: {}", refreshToken);
         return ResponseEntity.ok(authService.createAccessToken(refreshToken));
+    }
+    // 길종환
+    @GetMapping("/infoByToken")
+    public UserResDto getUserInfoByToken(@RequestHeader("Authorization") String token) {
+        return authService.getUserInfo(token);
+    }
+
+    @GetMapping("/infoByEmail")
+    public Member getUserInfoByEmail(@RequestParam String email) {
+        return authService.getUserByEmail(email);
     }
 }

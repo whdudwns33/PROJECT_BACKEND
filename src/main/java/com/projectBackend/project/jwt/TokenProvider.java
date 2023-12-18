@@ -226,4 +226,19 @@ public class TokenProvider {
     public String generateAccessToken(Authentication authentication) {
         return generateTokenDto(authentication).getAccessToken();
     }
+
+    // 길종환
+    public String getUserEmail(String token) {
+        // 토큰을 파싱하여 클레임을 얻습니다.
+        Claims claims = io.jsonwebtoken.Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        // 클레임에서 이메일을 읽어옵니다.
+        String email = claims.get("email", String.class);
+
+        return email;
+    }
 }
