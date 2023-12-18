@@ -3,6 +3,7 @@ package com.projectBackend.project.controller;
 import com.projectBackend.project.dto.TokenDto;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
+import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Token;
 import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.service.KakaoService;
@@ -91,4 +92,35 @@ public class AuthController {
         return ResponseEntity.ok(isTrue);
     }
 
+    // 로그인
+    @PostMapping("/login")
+    public ResponseEntity<TokenDto> login(@RequestBody UserReqDto userReqDto) {
+        TokenDto tokenDto = authService.login(userReqDto);
+        return ResponseEntity.ok(tokenDto);
+    }
+
+    // 로그인 상태 체크 (+ refresh 토큰 유효성 체크)
+    @GetMapping("/isLogin/{email}")
+    public ResponseEntity<Boolean> isLogin(@PathVariable String email) {
+        boolean isTrue = authService.isLogined(email);
+        return ResponseEntity.ok(isTrue);
+    }
+
+    // accessToken 재발급
+    @PostMapping("/refresh")
+    public ResponseEntity<String> refreshToken(@RequestBody String refreshToken) {
+        System.out.println("새로운 토큰 발급");
+        log.info("refreshToken: {}", refreshToken);
+        return ResponseEntity.ok(authService.createAccessToken(refreshToken));
+    }
+    // 길종환
+    @GetMapping("/infoByToken")
+    public UserResDto getUserInfoByToken(@RequestHeader("Authorization") String token) {
+        return authService.getUserInfo(token);
+    }
+
+    @GetMapping("/infoByEmail")
+    public Member getUserInfoByEmail(@RequestParam String email) {
+        return authService.getUserByEmail(email);
+    }
 }
