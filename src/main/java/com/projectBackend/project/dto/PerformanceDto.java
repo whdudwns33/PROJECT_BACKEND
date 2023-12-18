@@ -18,6 +18,6 @@ public class PerformanceDto {
     private String description;
     private int seatCount;
     private String performanceImage;
-
+    private List<String> nicknames;
 
 }
