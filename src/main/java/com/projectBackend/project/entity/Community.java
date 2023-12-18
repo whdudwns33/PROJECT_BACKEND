@@ -48,8 +48,7 @@ public class Community {
     @JoinColumn(name = "category_id")
     private CommunityCategory category; // 카테고리
 
-    @Column(name = "category_name")
-    private String categoryName; // 카테고리 이름
+    private String categoryName;
 
     private String email;
     @Column(name = "ip_address")
