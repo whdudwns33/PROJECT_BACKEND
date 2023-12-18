@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -342,5 +343,43 @@ public class MusicService {
         }
         return musicUserDtos;
     }
+
+    // 조영준
+    // 판매수로 정렬
+    public List<MusicUserDto> musicSortList() {
+        // 음악 엔티티의 모든 음악 데이터
+        List<Music> musicList = musicRepository.findAll();
+        List<String> nickNames = new ArrayList<>();
+        List<MusicUserDto> musicUserDtoList = new ArrayList<>();
+        log.info("musicList1 : {}", musicList);
+        // 닉네임 설정
+        for(Music music : musicList) {
+            nickNames.add(music.getMember().getUserNickname());
+        }
+        // music & user data 전달
+        for (int i = 0; i < musicList.size(); i++) {
+            // i 번째 엔티티 객체
+            Music music = musicList.get(i);
+            System.out.println(i + "music1 " + music);
+
+            // 닉네임 값
+            String nickname = nickNames.get(i);
+            System.out.println(i + "nickname11 : " + nickname);
+
+            // music Dto로 변환
+            MusicUserDto musicUserDto = convertEntityToUserDto(music, nickname);
+            System.out.println(i + "musicDto1 : " + musicUserDto);
+
+            // 최종 응답 dto list
+            musicUserDtoList.add(musicUserDto);
+        }
+        //Comparator는 자바에서 객체들 간의 순서를 비교할 때 사용되는 인터페이스
+        //dto -> dto.getMusicDTO().getPurchaseCount()) : 객체 리스트의 객체의 속성을 참조하는 람다식
+        //오름차순 정렬
+        musicUserDtoList.sort(Comparator.comparingInt(dto -> dto.getMusicDTO().getPurchaseCount()));
+        System.out.println("final musicUserDtoList : " + musicUserDtoList);
+        return musicUserDtoList;
+    }
+
 }
 
