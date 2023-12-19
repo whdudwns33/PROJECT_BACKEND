@@ -30,4 +30,9 @@ public class MainController {
     public ResponseEntity<List<MusicUserDto>> mainTop () {
         return ResponseEntity.ok(musicService.musicSortList());
     }
+
+    @GetMapping("/newSong")
+    public  ResponseEntity<List<MusicUserDto>> newList () {
+        return ResponseEntity.ok(musicService.newSongList());
+    }
 }

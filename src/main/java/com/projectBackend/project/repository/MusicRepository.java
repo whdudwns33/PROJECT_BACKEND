@@ -8,4 +8,11 @@ import java.util.List;
 
 public interface MusicRepository extends JpaRepository<Music, Long> {
     List<Music> findByMusicTitleContainingIgnoreCase(String keyword);
-    List<Music> findByMember(Member member);}
+    List<Music> findByMember(Member member);
+    // 음악 날짜 정렬
+    List<Music> findAllByOrderByReleaseDateAsc();
+    // 음악 판매순 정렬
+    List<Music> findAllByOrderByPurchaseCountDesc();
+
+
+}

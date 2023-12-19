@@ -26,6 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException(username + "을 찾을 수 없음"));
     }
 
+    // 토큰의 데이터를 저장
     private UserDetails createUserDetails (Member member) {
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(member.getAuthority().toString());
         return new User(

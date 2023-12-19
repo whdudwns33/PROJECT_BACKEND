@@ -303,11 +303,11 @@ public class MusicService {
         }
     }
 
-
+    // MusicUserDto = useDto + musicDto
     // 엔티티 객체를 DTO로 변환
     private MusicUserDto convertEntityToUserDto(Music music, String userNickname) {
         MusicUserDto musicUserDto = new MusicUserDto();
-
+        // musicDto
         MusicDTO musicDTO = new MusicDTO();
         musicDTO.setId(music.getMusicId());
         musicDTO.setMusicTitle(music.getMusicTitle());
@@ -320,9 +320,10 @@ public class MusicService {
         musicDTO.setThumbnailImage(music.getThumbnailImage());
         musicDTO.setPromoImage(music.getPromoImage());
         musicDTO.setMusicInfo(music.getMusicInfo());
-
+        // musicDto 저장
         musicUserDto.setMusicDTO(musicDTO);
 
+        // userDto에 닉네임 값 저장
         UserResDto userResDto = new UserResDto();
         userResDto.setUserNickname(userNickname);
         musicUserDto.setUserResDto(userResDto);
@@ -345,10 +346,10 @@ public class MusicService {
     }
 
     // 조영준
-    // 판매수로 정렬
+    // 판매수 내림 차순으로 정렬
     public List<MusicUserDto> musicSortList() {
         // 음악 엔티티의 모든 음악 데이터
-        List<Music> musicList = musicRepository.findAll();
+        List<Music> musicList = musicRepository.findAllByOrderByPurchaseCountDesc();
         List<String> nickNames = new ArrayList<>();
         List<MusicUserDto> musicUserDtoList = new ArrayList<>();
         log.info("musicList1 : {}", musicList);
@@ -373,11 +374,46 @@ public class MusicService {
             // 최종 응답 dto list
             musicUserDtoList.add(musicUserDto);
         }
-        //Comparator는 자바에서 객체들 간의 순서를 비교할 때 사용되는 인터페이스
-        //dto -> dto.getMusicDTO().getPurchaseCount()) : 객체 리스트의 객체의 속성을 참조하는 람다식
-        //오름차순 정렬
-        musicUserDtoList.sort(Comparator.comparingInt(dto -> dto.getMusicDTO().getPurchaseCount()));
+
+//        //Comparator는 자바에서 객체들 간의 순서를 비교할 때 사용되는 인터페이스
+//        //dto -> dto.getMusicDTO().getPurchaseCount()) : 객체 리스트의 객체의 속성을 참조하는 람다식
+//        //오름차순 정렬
+//        musicUserDtoList.sort(Comparator.comparingInt(dto -> dto.getMusicDTO().getPurchaseCount()).reversed());
         System.out.println("final musicUserDtoList : " + musicUserDtoList);
+        return musicUserDtoList;
+    }
+    
+    // 조영준
+    // 날짜별 정렬
+    public List<MusicUserDto> newSongList () {
+        // 음악 엔티티의 모든 음악 데이터
+        // 날짜 순 정렬
+        List<Music> musicList = musicRepository.findAllByOrderByReleaseDateAsc();
+        List<String> nickNames = new ArrayList<>();
+        List<MusicUserDto> musicUserDtoList = new ArrayList<>();
+        log.info("new musicList : {}", musicList);
+        // 닉네임 설정
+        for(Music music : musicList) {
+            nickNames.add(music.getMember().getUserNickname());
+        }
+        // music & user data 전달
+        for (int i = 0; i < musicList.size(); i++) {
+            // i 번째 엔티티 객체
+            Music music = musicList.get(i);
+            System.out.println(i + "new music " + music);
+
+            // 닉네임 값
+            String nickname = nickNames.get(i);
+            System.out.println(i + "new nickname : " + nickname);
+
+            // music Dto로 변환
+            MusicUserDto musicUserDto = convertEntityToUserDto(music, nickname);
+            System.out.println(i + "new musicDto : " + musicUserDto);
+
+            // 최종 응답 dto list
+            musicUserDtoList.add(musicUserDto);
+        }
+        System.out.println("final new musicUserDtoList : " + musicUserDtoList);
         return musicUserDtoList;
     }
 
