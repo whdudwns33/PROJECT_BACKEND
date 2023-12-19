@@ -156,12 +156,25 @@ public class AuthService {
                 log.info("승인 토큰 : {}", authenticationToken);
                 Authentication authentication = managerBuilder.getObject().authenticate(authenticationToken);
                 log.info("승인 정보 : {}", authentication);
-                return tokenProvider.generateTokenDto(authentication);
+                TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
+                // 카카오 토큰 저장
+                if (tokenDto != null) {
+                    // 토큰 저장
+                    Token token = new Token();
+                    String refreshToken = tokenDto.getRefreshToken();
+                    System.out.println("카카오 리프레쉬 토큰 : " + refreshToken);
+                    token.setRefreshToken(refreshToken);
+                    token.setMember(user);
+                    tokenRepository.save(token);
+                    return tokenDto;
+                }
+                else {
+                    return null;
+                }
             }
             else {
                 return null;
             }
-            
         }
         catch (Exception e){
             e.printStackTrace();
