@@ -134,19 +134,37 @@ public class AuthService {
 
     // 카카오 로그인 => 카카오 토큰이 존재하지만, 사용하지 않을 생각
     public TokenDto kakaoLogin(String email) {
-        if (email != null) {
-            // 랜덤 비밀번호 생성
-            String password = generateRandomPassword();
-            UserReqDto userReqDto = new UserReqDto();
-            userReqDto.setUserEmail(email);
-            userReqDto.setUserPassword(password);
-            UsernamePasswordAuthenticationToken authenticationToken = userReqDto.toAuthentication();
-            log.info("승인 토큰 : {}", authenticationToken);
-            Authentication authentication = managerBuilder.getObject().authenticate(authenticationToken);
-            log.info("승인 정보 : {}", authentication);
-            return tokenProvider.generateTokenDto(authentication);
+        try {
+            // 카카오 로그인 => 카카오 이메일 + 랜덤 비밀번호 사용
+            // 랜덤 비밀번호를 저장하기 위한 데이터 조회 및 저장
+            Optional<Member> member = userRepository.findByUserEmail(email);
+            if (member.isPresent()) {
+                Member user = member.get();
+                System.out.println("카카오 로그인 회원 : " + user);
+                
+                // 랜덤 비밀번호 생성 및 저장
+                String password = generateRandomPassword();
+                // 비밀번호 해싱
+                String hashedPassword = passwordEncoder.encode(password);
+                user.setUserPassword(hashedPassword);
+                userRepository.save(user);
+                // 응답 dto
+                UserReqDto userReqDto = new UserReqDto();
+                userReqDto.setUserEmail(email);
+                userReqDto.setUserPassword(password);
+                UsernamePasswordAuthenticationToken authenticationToken = userReqDto.toAuthentication();
+                log.info("승인 토큰 : {}", authenticationToken);
+                Authentication authentication = managerBuilder.getObject().authenticate(authenticationToken);
+                log.info("승인 정보 : {}", authentication);
+                return tokenProvider.generateTokenDto(authentication);
+            }
+            else {
+                return null;
+            }
+            
         }
-        else {
+        catch (Exception e){
+            e.printStackTrace();
             return null;
         }
     }
