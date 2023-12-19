@@ -19,6 +19,8 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.List;
+
 import static com.projectBackend.project.service.MailService.EPW;
 
 @Slf4j
@@ -125,5 +127,13 @@ public class AuthController {
     @GetMapping("/infoByEmail")
     public Member getUserInfoByEmail(@RequestParam String email) {
         return authService.getUserByEmail(email);
+    }
+
+    // 장현준, 전체유저리스트
+    @GetMapping("/userList")
+    public ResponseEntity<List<Member>> userList() {
+        System.out.println("컨트롤러 userList");
+        List<Member> list = authService.getUserList();
+        return ResponseEntity.ok(list);
     }
 }

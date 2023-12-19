@@ -20,10 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -205,5 +202,16 @@ public class AuthService {
         Optional<Member> userEntity = userRepository.findByUserEmail(email);
 
         return userEntity.orElse(null);
+    }
+
+    // 장현준, 전체유저리스트
+    public List<Member> getUserList() {
+        List<Member> members = userRepository.findAll();
+        List<UserResDto> userResDtos = new ArrayList<>();
+        System.out.println("서비스, members : " + members);
+        for (Member member : members) {
+            userResDtos.add(UserResDto.of(member));
+        }
+        return userRepository.findAll();
     }
 }
