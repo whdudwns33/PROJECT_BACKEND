@@ -95,12 +95,18 @@ public class MusicController {
 
     //음악 등록
     @PostMapping("/new")
-    public ResponseEntity<MusicDTO> addMusic(@RequestBody MusicUserDto musicUserDto) {
+    public ResponseEntity<MusicUserDto> addMusic(@RequestBody MusicUserDto musicUserDto) {
 
         MusicDTO musicDto = musicUserDto.getMusicDTO();
         UserReqDto userReqDTO = musicUserDto.getUserReqDto();
         MusicDTO addedMusic = musicService.addMusic(musicDto, userReqDTO);
-        return ResponseEntity.ok(addedMusic);
+
+        // MusicUserDto에 추가된 MusicDTO와 UserReqDto를 설정하고 반환.
+        MusicUserDto responseDto = new MusicUserDto();
+        responseDto.setMusicDTO(addedMusic); // 추가된 음악 DTO 설정
+        responseDto.setUserReqDto(userReqDTO); // userReqDTO 설정
+
+        return ResponseEntity.ok(responseDto);
     }
 
 

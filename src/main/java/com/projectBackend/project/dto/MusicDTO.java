@@ -25,7 +25,7 @@ public class MusicDTO {
     private String lyrics;
     private LocalDate releaseDate;
     private String thumbnailImage;
-    private String promoImage;
+
     private String musicInfo;
 
 
@@ -43,7 +43,7 @@ public class MusicDTO {
                 .lyrics(music.getLyrics())
                 .releaseDate(music.getReleaseDate())
                 .thumbnailImage(music.getThumbnailImage())
-                .promoImage(music.getPromoImage())
+
                 .musicInfo(music.getMusicInfo())
                 .build();
     }
@@ -59,7 +59,7 @@ public class MusicDTO {
                 .lyrics(lyrics)
                 .releaseDate(releaseDate) // LocalDate을 직접 사용합니다.
                 .thumbnailImage(thumbnailImage)
-                .promoImage(promoImage)
+
                 .musicInfo(musicInfo)
                 .member(member) // Member 객체를 이용하여 userNickname을 설정합니다.
                 .build();
@@ -68,4 +68,5 @@ public class MusicDTO {
 
 
 }
+
 

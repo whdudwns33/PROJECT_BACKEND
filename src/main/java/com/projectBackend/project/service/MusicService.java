@@ -165,7 +165,7 @@ public class MusicService {
             music.setLyrics(musicDTO.getLyrics());
             music.setReleaseDate(musicDTO.getReleaseDate());
             music.setThumbnailImage(musicDTO.getThumbnailImage());
-            music.setPromoImage(musicDTO.getPromoImage());
+
             music.setMusicInfo(musicDTO.getMusicInfo());
             musicRepository.save(music);
             return true;
@@ -239,7 +239,7 @@ public class MusicService {
             music.setLyrics(musicDTO.getLyrics());
             music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
             music.setThumbnailImage(musicDTO.getThumbnailImage());
-            music.setPromoImage(musicDTO.getPromoImage());
+
             music.setMusicInfo(musicDTO.getMusicInfo());
             music.setMember(member);
 
@@ -259,7 +259,7 @@ public class MusicService {
             returnDTO.setLyrics(music.getLyrics());
             returnDTO.setReleaseDate(music.getReleaseDate());
             returnDTO.setThumbnailImage(music.getThumbnailImage());
-            returnDTO.setPromoImage(music.getPromoImage());
+
             returnDTO.setUserNickname(music.getMember().getUserNickname());
             returnDTO.setMusicInfo(music.getMusicInfo());
             musicRepository.save(music);
@@ -286,7 +286,7 @@ public class MusicService {
         music.setLyrics(musicDTO.getLyrics());
         music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
         music.setThumbnailImage(musicDTO.getThumbnailImage());
-        music.setPromoImage(musicDTO.getPromoImage());
+
         music.setMusicInfo(musicDTO.getMusicInfo());
         return music;
     }
