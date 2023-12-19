@@ -19,6 +19,8 @@ public class UserResDto {
     private String userNickname;
     private String userName;
     private String userAddr;
+    private String userDetailAddr;
+
     private String userPhone;
     private String userGen;
     private int userAge;

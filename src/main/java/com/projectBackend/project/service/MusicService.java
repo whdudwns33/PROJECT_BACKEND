@@ -345,6 +345,7 @@ public class MusicService {
         return musicUserDtos;
     }
 
+
     // 조영준
     // 판매수 내림 차순으로 정렬
     public List<MusicUserDto> musicSortList() {
@@ -352,7 +353,7 @@ public class MusicService {
         List<Music> musicList = musicRepository.findAllByOrderByPurchaseCountDesc();
         List<String> nickNames = new ArrayList<>();
         List<MusicUserDto> musicUserDtoList = new ArrayList<>();
-        log.info("musicList1 : {}", musicList);
+//        log.info("musicList1 : {}", musicList);
         // 닉네임 설정
         for(Music music : musicList) {
             nickNames.add(music.getMember().getUserNickname());
@@ -374,12 +375,6 @@ public class MusicService {
             // 최종 응답 dto list
             musicUserDtoList.add(musicUserDto);
         }
-
-//        //Comparator는 자바에서 객체들 간의 순서를 비교할 때 사용되는 인터페이스
-//        //dto -> dto.getMusicDTO().getPurchaseCount()) : 객체 리스트의 객체의 속성을 참조하는 람다식
-//        //오름차순 정렬
-//        musicUserDtoList.sort(Comparator.comparingInt(dto -> dto.getMusicDTO().getPurchaseCount()).reversed());
-        System.out.println("final musicUserDtoList : " + musicUserDtoList);
         return musicUserDtoList;
     }
     

@@ -31,6 +31,7 @@ public class MainController {
         return ResponseEntity.ok(musicService.musicSortList());
     }
 
+    // 새로운 등록 순서
     @GetMapping("/newSong")
     public  ResponseEntity<List<MusicUserDto>> newList () {
         return ResponseEntity.ok(musicService.newSongList());
