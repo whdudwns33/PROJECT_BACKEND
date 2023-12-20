@@ -2,6 +2,7 @@ package com.projectBackend.project.service;
 
 
 import com.projectBackend.project.dto.PerformanceDto;
+import com.projectBackend.project.dto.PerformerDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Performance;
@@ -60,6 +61,7 @@ public class PerformanceService {
             performance = performanceRepository.save(performance);
 
             for (String performerName : performanceDto.getPerformer()) {
+                System.out.println("performerName : " + performerName);
                 Member member = userRepository.findByUserNickname(performerName)
                         .orElseThrow(() -> new RuntimeException("해당 회원이 존재하지 않습니다."));
                 Performer performer = new Performer();
@@ -227,6 +229,51 @@ public class PerformanceService {
             UserResDto userResDto = new UserResDto();
             userResDto.setPerformances(Collections.emptyList());
             return userResDto;
+        }
+    }
+
+
+    // 조영준
+    public List<PerformanceDto> getPerformanceComercial() {
+
+        try {
+            // 데이터 베이스 정보
+            List<Performance> performanceList = performanceRepository.findAll();
+            log.info("메인 페이지 광고 영역 : {}",performanceList);
+            // DTO list
+            List<PerformanceDto> performanceDtoList = new ArrayList<>();
+            // nicknames
+
+
+            // 리스트 안의 객체 하나하나 조회
+            for (Performance performance : performanceList) {
+                // 객체 하나의 아이디 값 참조
+                Long id = performance.getPerformanceId();
+                // 공연자 정보 조회
+                List<Performer> performerList = performerRepository.findByPerformance_PerformanceId(id);
+                System.out.println("performerList 공연자 리스트 : " + performerList);
+                // 닉네임 리스트 생성
+                List<String> nicknames = new ArrayList<>();
+                for (Performer performer : performerList) {
+                    // 공연자 개인의 닉네임 조회
+                    String nickName = performer.getMember().getUserNickname();
+                    nicknames.add(nickName);
+                    System.out.println("공연자 닉네임 리스트 : " + nicknames);
+                }
+                // 엔티티를 DTO로 
+                PerformanceDto performanceDto = convertEntityToDto(performance);
+                performanceDto.setNicknames(nicknames);
+                // DTO를 List 에 저장
+                performanceDtoList.add(performanceDto);
+            }
+
+            
+            log.info("performanceDtoList_mainpage : {}",performanceDtoList);
+            return performanceDtoList;
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -318,7 +318,6 @@ public class MusicService {
         musicDTO.setLyrics(music.getLyrics());
         musicDTO.setReleaseDate(music.getReleaseDate());
         musicDTO.setThumbnailImage(music.getThumbnailImage());
-        musicDTO.setPromoImage(music.getPromoImage());
         musicDTO.setMusicInfo(music.getMusicInfo());
         // musicDto 저장
         musicUserDto.setMusicDTO(musicDTO);
@@ -411,6 +410,9 @@ public class MusicService {
         System.out.println("final new musicUserDtoList : " + musicUserDtoList);
         return musicUserDtoList;
     }
+
+    // 조영준
+    // 메인 페이지
 
 }
 
