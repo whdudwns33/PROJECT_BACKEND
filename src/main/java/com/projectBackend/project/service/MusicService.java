@@ -7,6 +7,8 @@ import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
+import com.projectBackend.project.entity.MusicHeart;
+import com.projectBackend.project.repository.MusicHeartRepository;
 import com.projectBackend.project.repository.MusicRepository;
 import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +34,9 @@ import java.util.Optional;
 public class MusicService {
     private final MusicRepository musicRepository;
     private final UserRepository userRepository;
+    private final MusicHeartRepository musicHeartRepository;
+
+
 
     //음악 전체 조회
 
@@ -111,13 +116,64 @@ public class MusicService {
 //        return musicUserDtos;
 //    }
 
+//    //음악 좋아요.
+//    public int addheart(Long id) {
+//        Optional<Music> musicOptional = musicRepository.findById(id);
+//        if(musicOptional.isPresent()) {
+//            Music music = musicOptional.get();
+//            System.out.println("music1111 : " +music);
+//            String nickname = music.getMember().getUserNickname();
+//            System.out.println("nickname : " +nickname );
+//            List<String> heartchecklist = music.getHeartCheck();
+//            int heartCount = music.getHeartCount();
+//
+//            boolean isTrue = false;
+//            for (String heartcheck : heartchecklist) {
+//                if(heartcheck.equals(nickname)) {
+//                    isTrue = false;
+//                }
+//                else {
+//                    isTrue = true;
+//                }
+//            }
+//
+//            if(isTrue) {
+//                heartCount ++;
+//                music.setHeartCount(heartCount);
+//                System.out.println("heartcount : " + music);
+//                musicRepository.save(music);
+//                return heartCount;
+//            }else {
+//                heartCount --;
+//                music.setHeartCount(heartCount);
+//                System.out.println(("heartminus : " + music));
+//                musicRepository.save(music);
+//                return heartCount;
+//            }
+//        }else {
+//            return 0;
+//        }
+//    }
+
+
+
+
+
+
+
+
+
     //상세 조회
     public MusicUserDto getMusicById(Long id) {
         Optional<Music> musicOptional = musicRepository.findById(id);
         if (musicOptional.isPresent()) {
+            // 음악 아이디 기준 좋아요 수 조회
+            List<MusicHeart> musicHearts = musicHeartRepository.findByMusic_MusicId(id);
+            int heartCount = musicHearts.size();
+            // 음악 객체 생성
             Music music = musicOptional.get();
             String nickname = music.getMember().getUserNickname();
-            return convertEntityToUserDto(music, nickname);
+            return convertEntityToUserDto(music, nickname, heartCount);
         } else {
             return null;
         }
@@ -165,7 +221,9 @@ public class MusicService {
             music.setLyrics(musicDTO.getLyrics());
             music.setReleaseDate(musicDTO.getReleaseDate());
             music.setThumbnailImage(musicDTO.getThumbnailImage());
+            music.setMusicFile(musicDTO.getMusicFile());
 
+            music.setHeartCount(musicDTO.getHeartCount());
             music.setMusicInfo(musicDTO.getMusicInfo());
             musicRepository.save(music);
             return true;
@@ -200,6 +258,8 @@ public class MusicService {
             System.out.println("findByNickName try!!!");
             String nickName = userReqDto.getUserNickname();
             Optional<Member> memberOptional = userRepository.findByUserNickname(nickName);
+            // memberOptional에 값이 있다면 해당 엔티티 객체를 반환하고, 없으면 예외를 던짐
+
             System.out.println("memberOptional" + memberOptional);
             // memberOptional가 비어있지 않다면 해당 엔티티 객체 반환
             if (memberOptional.isPresent()) {
@@ -239,7 +299,9 @@ public class MusicService {
             music.setLyrics(musicDTO.getLyrics());
             music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
             music.setThumbnailImage(musicDTO.getThumbnailImage());
+            music.setMusicFile(musicDTO.getMusicFile());
 
+            music.setHeartCount(musicDTO.getHeartCount());
             music.setMusicInfo(musicDTO.getMusicInfo());
             music.setMember(member);
 
@@ -259,7 +321,9 @@ public class MusicService {
             returnDTO.setLyrics(music.getLyrics());
             returnDTO.setReleaseDate(music.getReleaseDate());
             returnDTO.setThumbnailImage(music.getThumbnailImage());
+            returnDTO.setMusicFile(music.getMusicFile());
 
+            returnDTO.setHeartCount(music.getHeartCount());
             returnDTO.setUserNickname(music.getMember().getUserNickname());
             returnDTO.setMusicInfo(music.getMusicInfo());
             musicRepository.save(music);
@@ -287,6 +351,8 @@ public class MusicService {
         music.setReleaseDate(musicDTO.getReleaseDate()); // releaseDate 파싱하여 설정
         music.setThumbnailImage(musicDTO.getThumbnailImage());
 
+        music.setHeartCount(musicDTO.getHeartCount());
+        music.setMusicFile(musicDTO.getMusicFile());
         music.setMusicInfo(musicDTO.getMusicInfo());
         return music;
     }
@@ -307,7 +373,7 @@ public class MusicService {
     // 엔티티 객체를 DTO로 변환
     private MusicUserDto convertEntityToUserDto(Music music, String userNickname) {
         MusicUserDto musicUserDto = new MusicUserDto();
-        // musicDto
+
         MusicDTO musicDTO = new MusicDTO();
         musicDTO.setId(music.getMusicId());
         musicDTO.setMusicTitle(music.getMusicTitle());
@@ -318,8 +384,11 @@ public class MusicService {
         musicDTO.setLyrics(music.getLyrics());
         musicDTO.setReleaseDate(music.getReleaseDate());
         musicDTO.setThumbnailImage(music.getThumbnailImage());
+        musicDTO.setMusicFile(music.getMusicFile());
+
+        musicDTO.setHeartCount(music.getHeartCount());
         musicDTO.setMusicInfo(music.getMusicInfo());
-        // musicDto 저장
+
         musicUserDto.setMusicDTO(musicDTO);
 
         // userDto에 닉네임 값 저장
@@ -329,6 +398,36 @@ public class MusicService {
 
         return musicUserDto;
     }
+
+    // 음악 상세 정보 + 좋아요 전달. 엔티티에서 디티오로
+    private MusicUserDto convertEntityToUserDto(Music music, String userNickname, int heartCount) {
+        MusicUserDto musicUserDto = new MusicUserDto();
+
+        MusicDTO musicDTO = new MusicDTO();
+        musicDTO.setId(music.getMusicId());
+        musicDTO.setMusicTitle(music.getMusicTitle());
+        musicDTO.setComposer(music.getComposer());
+        musicDTO.setLyricist(music.getLyricist());
+        musicDTO.setGenre(music.getGenre());
+        musicDTO.setPurchaseCount(music.getPurchaseCount());
+        musicDTO.setLyrics(music.getLyrics());
+        musicDTO.setReleaseDate(music.getReleaseDate());
+        musicDTO.setThumbnailImage(music.getThumbnailImage());
+        musicDTO.setMusicFile(music.getMusicFile());
+
+        musicDTO.setHeartCount(heartCount);
+        musicDTO.setMusicInfo(music.getMusicInfo());
+
+        musicUserDto.setMusicDTO(musicDTO);
+
+        // userDto에 닉네임 값 저장
+        UserResDto userResDto = new UserResDto();
+        userResDto.setUserNickname(userNickname);
+        musicUserDto.setUserResDto(userResDto);
+
+        return musicUserDto;
+    }
+
     // 길종환
     public List<MusicUserDto> getMusicByUserId(Long userId) {
         Member member = userRepository.findById(userId).orElse(null);

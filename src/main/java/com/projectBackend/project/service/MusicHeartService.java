@@ -1,97 +1,98 @@
-//package com.projectBackend.project.service;
-//
-//
-//import com.projectBackend.project.entity.Member;
-//import com.projectBackend.project.entity.Music;
-//import com.projectBackend.project.entity.MusicHeart;
-//import com.projectBackend.project.repository.MusicHeartRepository;
-//import com.projectBackend.project.repository.MusicRepository;
-//import com.projectBackend.project.repository.UserRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.stereotype.Service;
-//
-//import java.util.Optional;
-//
-//@Service
-//public class MusicHeartService {
-//
-//    private final MusicHeartRepository musicHeartRepository;
-//    private final UserRepository userRepository;
-//    private final MusicRepository musicRepository;
-//
-//    @Autowired
-//    public MusicHeartService(MusicHeartRepository musicHeartRepository, UserRepository userRepository, MusicRepository musicRepository) {
-//        this.musicHeartRepository = musicHeartRepository;
-//        this.userRepository = userRepository;
-//        this.musicRepository = musicRepository;
-//    }
-//
-//    //사용자가 해당 음악을 이미 좋아요 했는지 체크하는 메서드
-//
-//    public boolean beforeLikeMusic(String userEmail, Long musicId) {
-//        Optional<Member> optionalMember = userRepository.findByUserEmail(userEmail);
-//        Member member = optionalMember.orElse(null);
-//        // 사용자 이메일로 회원 정보 조회
-//
-//
-//        Optional<Music> optionalMusic = musicRepository.findById(musicId);
-//        Music music = optionalMusic.orElse(null);
-//        // 음악 ID로 음악 정보 조회
-//
-//        // 회원 정보와 음악 정보가 모두 존재하면 좋아요 여부 확인
-//        if (member !=null && music !=null) {
-//            return musicHeartRepository.existsByMemberAndMusic(member,music);
-//        }
-//
-//        return false;  // 회원 정보 또는 음악 정보가 없는 경우
-//    }
-//
-//
-//
-//    // 좋아요 추가
-//    public boolean addMusicHeart(String userEmail, Long musicId) {
-//        Optional<Member> optionalMember = userRepository.findByUserEmail(userEmail);
-//        Member member = optionalMember.orElse(null);
-//        // 사용자 이메일로 회원 정보 조회
-//
-//        Optional<Music> optionalMusic = musicRepository.findById(musicId);
-//        Music music = optionalMusic.orElse(null);
-//        // 음악 ID로 음악 정보 조회
-//
-//        if (member != null && music != null) {
-//            // 사용자가 해당 음악을 이미 좋아요 했는지 확인
-//            if (!beforeLikeMusic(userEmail, musicId)) {
-//                MusicHeart musicHeart = new MusicHeart();
-//                musicHeart.setMember(member);
-//                musicHeart.setMusic(music);
-//                musicHeartRepository.save(musicHeart);
-//                return true; // 좋아요 추가 성공
-//            }
-//        }
-//        return false;
-//        // 이미 좋아요를 누른 경우 또는 회원 정보나 음악 정보가 잘못된 경우
-//    }
-//
-//
-//    // 좋아요 제거하기.
-//    public boolean removeMusicHeart(String userEmail, Long musicId) {
-//        Optional<Member> optionalMember = userRepository.findByUserEmail(userEmail);
-//        Member member = optionalMember.orElse(null);
-//        // 사용자 이메일로 회원 정보 조회
-//
-//        Optional<Music> optionalMusic = musicRepository.findById(musicId);
-//        Music music = optionalMusic.orElse(null);
-//        // 음악 ID로 음악 정보 조회
-//
-//        if (member != null && music != null) {
-//            if (beforeLikeMusic(userEmail, musicId)) {
-//                MusicHeart musicHeart = musicHeartRepository.findByMemberAndMusic(member, music);
-//                musicHeartRepository.delete(musicHeart);
-//                return true; // 좋아요 제거 성공
-//            }
-//        }
-//        return false; // 좋아요를 누른 적이 없거나 회원 정보나 음악 정보가 잘못된 경우
-//    }
-//
-//}
+package com.projectBackend.project.service;
 
+import com.projectBackend.project.dto.MusicDTO;
+import com.projectBackend.project.dto.MusicHeartDto;
+import com.projectBackend.project.entity.Member;
+import com.projectBackend.project.entity.Music;
+import com.projectBackend.project.entity.MusicHeart;
+import com.projectBackend.project.repository.MusicHeartRepository;
+import com.projectBackend.project.repository.MusicRepository;
+import com.projectBackend.project.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MusicHeartService {
+
+    private final MusicHeartRepository musicHeartRepository;
+    private final MusicRepository musicRepository;
+    private final UserRepository userRepository;
+
+
+    // 해당 사용자가 음악에 좋아요를 누를 때 실행되는 메서드
+    public int likeMusic(MusicHeartDto musicHeartDto) {
+        //회원을 인식하기 위해 프론트에서 넘어온 dto에서 이메일 값을 뽑아오기.
+        String email = musicHeartDto.getUserEmail();
+        log.info("email : {}",email);
+        //이메일 값을 통해, 회원 객체를 뽑아오기(db row)
+        Optional<Member> memberOptional = userRepository.findByUserEmail(email);
+        log.info("memberOptional : {}",memberOptional);
+        if (memberOptional.isPresent()) {
+            Member memberdata = memberOptional.get();
+            //객체 안에서 userid를 찾아오기.
+            Long userId = memberdata.getId();
+            log.info("userId : {}", userId);
+            Long musicId = musicHeartDto.getMusicId();
+            log.info("musicId : {}", musicId);
+            // 음악 객체(DB row)
+
+            Optional<Music> musicOptional = musicRepository.findById(musicId);
+            Music music = musicOptional.get();
+            Optional<Member> optionalMember = userRepository.findById(userId);
+            Member member = optionalMember.get();
+
+            // 하트 전체정보를 리스트로
+            List<MusicHeart> musicHearts = musicHeartRepository.findByMusic_MusicId(musicId);
+            log.info("music heart list : {}",musicHearts);
+            // 중복 체크를 위한 user id 리스트
+            List<Long> userIdList = new ArrayList<>();
+            for (MusicHeart musicHeart : musicHearts) {
+                Long memberId = musicHeart.getMember().getId();
+                userIdList.add(memberId);
+                log.info("userIdList : {}",userIdList);
+            }
+            if (userIdList.contains(userId)) {
+                // 리스트안에 해당 아이디가 존재 => 이미 좋아요를 누른 상태
+                log.info("isContain : {}",userIdList.contains(userId));
+                // 좋아여 삭제
+                musicHeartRepository.deleteByMusic_MusicIdAndMember_UserId(musicId,userId);
+                // 삭제된 데이터 반영
+                List<MusicHeart> newMusicHearts = musicHeartRepository.findByMusic_MusicId(musicId);
+                log.info("newMusicHearts : {}",newMusicHearts);
+                int heartCount = newMusicHearts.size();
+                log.info("heartCount : {}", heartCount);
+                return heartCount;
+            }
+            else {
+                // 좋아요을 누르지 않은 상태
+                System.out.println("isNotContain :" + userIdList.contains(userId));
+                //좋아요 추가
+                MusicHeart musicHeart = new MusicHeart();
+                musicHeart.setMember(member);
+                musicHeart.setMusic(music);
+                musicHeartRepository.save(musicHeart);
+                // 좋아요 추가 반영
+                List<MusicHeart> newMusicHearts = musicHeartRepository.findByMusic_MusicId(musicId);
+                log.info("newMusicHearts : {}",newMusicHearts);
+                int heartCount = newMusicHearts.size();
+                log.info("heartCount : {}", heartCount);
+                return heartCount;
+            }
+        }
+        else {
+            return 0;
+        }
+    }
+
+
+
+
+
+}
