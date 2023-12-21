@@ -13,6 +13,8 @@ public interface MusicRepository extends JpaRepository<Music, Long> {
     List<Music> findAllByOrderByReleaseDateAsc();
     // 음악 판매순 정렬
     List<Music> findAllByOrderByPurchaseCountDesc();
+    // 회원 아이디로 음악 조회
+    List<Music> findByMemberId(Long id);
 
 
 }

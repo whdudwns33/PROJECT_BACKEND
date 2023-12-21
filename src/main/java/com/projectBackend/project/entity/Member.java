@@ -30,6 +30,7 @@ public class Member {
     private String userGen;
     private int userAge;
     private int userPoint;
+    private String profileImg;
     private String BUSINESS_NUM;
     @Enumerated(EnumType.STRING)
     private Authority authority;

@@ -5,6 +5,7 @@ import com.projectBackend.project.dto.MusicHeartDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.entity.MusicHeart;
+import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.MusicHeartRepository;
 import com.projectBackend.project.repository.MusicRepository;
 import com.projectBackend.project.repository.UserRepository;
@@ -24,6 +25,7 @@ public class MusicHeartService {
     private final MusicHeartRepository musicHeartRepository;
     private final MusicRepository musicRepository;
     private final UserRepository userRepository;
+    private final TokenProvider tokenProvider;
 
 
     // 해당 사용자가 음악에 좋아요를 누를 때 실행되는 메서드
@@ -89,6 +91,48 @@ public class MusicHeartService {
         else {
             return 0;
         }
+    }
+
+    // 조영준
+    // 음악의 총 좋아요 수
+    public int getAllHeart (Long musicId) {
+        List<MusicHeart> musicHeartList = musicHeartRepository.findByMusic_MusicId(musicId);
+        return musicHeartList.size();
+    }
+
+
+    // 조영준
+    // 회원의 총 좋아요 수
+    public int getUserAllHeart (String token) {
+        // 토큰에서 이메일 파싱
+        String email = tokenProvider.getUserEmail(token);
+        // 이메일의 회원 id 조회
+        Optional<Member> member = userRepository.findByUserEmail(email);
+        if(member.isPresent()) {
+            Member user = member.get();
+            Long userId =  user.getId();
+            // 회원 아이디로 등록된 음악들 조회
+            List<Music> musics = musicRepository.findByMemberId(userId);
+            // 음악들의 아이디를 조회하여 각각의 좋아요를 조회 및 리스트로 설정
+            List<Long> musicIds = new ArrayList<>();
+            for (Music music : musics) {
+                Long musicId = music.getMusicId();
+                musicIds.add(musicId);
+            }
+            // 음악 아이디 리스트의 아이디 값으로 좋아요 수를 조회
+            int heartCount = 0;
+            for (Long id : musicIds) {
+                List<MusicHeart> musicHearts = musicHeartRepository.findByMusic_MusicId(id);
+                int heart = musicHearts.size();
+                heartCount += heart;
+            }
+            System.out.println("heartCount : " + heartCount);
+            return heartCount;
+        }
+        else {
+            return 0;
+        }
+
     }
 
 

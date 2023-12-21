@@ -1,10 +1,7 @@
 package com.projectBackend.project.service;
 
 
-import com.projectBackend.project.dto.MusicDTO;
-import com.projectBackend.project.dto.MusicUserDto;
-import com.projectBackend.project.dto.UserReqDto;
-import com.projectBackend.project.dto.UserResDto;
+import com.projectBackend.project.dto.*;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.entity.MusicHeart;
@@ -35,6 +32,7 @@ public class MusicService {
     private final MusicRepository musicRepository;
     private final UserRepository userRepository;
     private final MusicHeartRepository musicHeartRepository;
+    private final   MusicHeartService musicHeartService;
 
 
 
@@ -511,7 +509,24 @@ public class MusicService {
     }
 
     // 조영준
-    // 메인 페이지
+    // 음악 전체 조회 및 각각의 좋아요 포함 DTO
+    public List<MusicUserDto> getMusicByheart () {
+        // 리스트 조회
+        List<Music> musicList = musicRepository.findAll();
+        List<MusicUserDto> musicUserDtos = new ArrayList<>();
+        for (Music music : musicList) {
+            // 음악 아이디로 좋아요 수 조회
+            Long musicId = music.getMusicId();
+            int hearts = musicHeartService.getAllHeart(musicId);
+            // 닉네임 저장
+            String nickname = music.getMember().getUserNickname();
+            // dto를 리스트로 저장
+            MusicUserDto musicUserDto = convertEntityToUserDto(music, nickname, hearts);
+            log.info("각 노래의 DTO : {} ", musicUserDto);
+            musicUserDtos.add(musicUserDto);
+        }
+        return musicUserDtos;
+    }
 
 }
 
