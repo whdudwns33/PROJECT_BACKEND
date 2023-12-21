@@ -1,15 +1,15 @@
 package com.projectBackend.project.controller;
 
+import com.projectBackend.project.jwt.TokenProvider;
+import com.projectBackend.project.service.AuthService;
+import io.jsonwebtoken.Claims;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/test")
 public class TestController {
-    @PostMapping("/test")
-    public ResponseEntity<String> test (@RequestBody String test) {
-        return ResponseEntity.ok("test 성공 여부");
+    private final TokenProvider tokenProvider;
+
+    @GetMapping("/test/{accessToken}")
+    public ResponseEntity<String> test (@PathVariable String accessToken) {
+        return ResponseEntity.ok(tokenProvider.getUserEmail(accessToken));
     }
 }

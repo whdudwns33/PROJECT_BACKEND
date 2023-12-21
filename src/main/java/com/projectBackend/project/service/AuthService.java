@@ -10,6 +10,7 @@ import com.projectBackend.project.entity.Token;
 import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.TokenRepository;
 import com.projectBackend.project.repository.UserRepository;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -85,9 +86,13 @@ public class AuthService {
 
     // 로그인 상태 확인
     // 이메일을 참조하여 해당
-    public boolean isLogined(String email) {
+    // 수정 : 이메일 => 토큰
+    public boolean isLogined(String accessToken) {
+        System.out.println("12345678");
         try {
-            if (email != null) {
+            if (accessToken != null) {
+                String email = tokenProvider.getUserEmail(accessToken);
+                log.info("email info : {}", email);
                 Optional<Member> member = userRepository.findByUserEmail(email);
                 if (member.isPresent()) {
                     Member user = member.get();
@@ -133,8 +138,10 @@ public class AuthService {
 
 
     // 카카오 로그인 => 카카오 토큰이 존재하지만, 사용하지 않을 생각
-    public TokenDto kakaoLogin(String email) {
+    public TokenDto kakaoLogin(String accessToken) {
         try {
+            String email = tokenProvider.getUserEmail(accessToken);
+            System.out.println("kakao login : " + email);
             // 카카오 로그인 => 카카오 이메일 + 랜덤 비밀번호 사용
             // 랜덤 비밀번호를 저장하기 위한 데이터 조회 및 저장
             Optional<Member> member = userRepository.findByUserEmail(email);
@@ -231,7 +238,6 @@ public class AuthService {
 
     public Member getUserByEmail(String email) {
         Optional<Member> userEntity = userRepository.findByUserEmail(email);
-
         return userEntity.orElse(null);
     }
 
@@ -245,4 +251,6 @@ public class AuthService {
         }
         return userRepository.findAll();
     }
+
+
 }
