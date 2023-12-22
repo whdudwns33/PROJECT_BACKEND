@@ -111,7 +111,6 @@ public class AuthController {
     // accessToken 재발급
     @PostMapping("/refresh")
     public ResponseEntity<String> refreshToken(@RequestBody String refreshToken) {
-        System.out.println("새로운 토큰 발급");
         log.info("refreshToken: {}", refreshToken);
         return ResponseEntity.ok(authService.createAccessToken(refreshToken));
     }

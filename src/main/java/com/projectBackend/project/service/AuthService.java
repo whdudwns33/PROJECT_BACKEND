@@ -69,7 +69,6 @@ public class AuthService {
                 // 토큰 저장
                 Token token = new Token();
                 token.setRefreshToken(refreshToken);
-//                token.setEmail(email);
                 token.setMember(user);
                 tokenRepository.save(token);
                 return tokenDto;
@@ -110,6 +109,10 @@ public class AuthService {
                             String refreshToken = token.getRefreshToken();
                             log.info("refreshToken : {}", refreshToken);
                             // 토큰 유효성 체크
+//                            boolean isTrue = tokenProvider.validateRefreshToken(refreshToken);
+//                            if(isTrue) {
+//
+//                            }
                             return tokenProvider.validateRefreshToken(refreshToken);
                         } else {
                             return false;
@@ -128,12 +131,6 @@ public class AuthService {
             System.out.println("로그인 상태가 아닙니다.");
             return false;
         }
-    }
-
-    // accessToken 재발급
-    public String createAccessToken(String refreshToken) {
-        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
-        return tokenProvider.generateAccessToken(authentication);
     }
 
 
@@ -220,6 +217,12 @@ public class AuthService {
         boolean isTrue = userRepository.existsByUserNickname(nickName);
         log.warn("닉네임 중복 확인 {} : ", isTrue);
         return isTrue;
+    }
+
+    // accessToken 재발급을 위해 리프레쉬 토큰에서 권한 정보 추출
+    public String createAccessToken(String refreshToken) {
+        Authentication authentication = tokenProvider.getAuthentication(refreshToken);
+        return tokenProvider.generateAccessToken(authentication);
     }
 
 
