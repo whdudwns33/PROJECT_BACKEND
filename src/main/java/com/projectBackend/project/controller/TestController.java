@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class TestController {
     private final TokenProvider tokenProvider;
 
+    // 이메일 테스트
     @GetMapping("/test/{accessToken}")
     public ResponseEntity<String> test (@PathVariable String accessToken) {
         return ResponseEntity.ok(tokenProvider.getUserEmail(accessToken));
