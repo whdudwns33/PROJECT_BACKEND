@@ -36,7 +36,7 @@ public class Member {
     private Authority authority;
 
     @Builder
-    public Member(String email, String password, String nickName, String name, String addr, String userDetailAddr, String tel, String gender, String BUSINESS_NUM, int point, int age, Authority authority) {
+    public Member(String email, String password, String nickName, String name, String addr, String userDetailAddr, String profileImg, String tel, String gender, String BUSINESS_NUM, int point, int age, Authority authority) {
         this.userEmail = email;
         this.userPassword = password;
         this.userNickname = nickName;
@@ -47,6 +47,7 @@ public class Member {
         this.userName = name;
         this.userGen = gender;
         this.userPoint = point;
+        this.profileImg = profileImg;
         this.authority = authority;
         this.userAge = age;
     }

@@ -20,6 +20,7 @@ public class UserResDto {
     private String userName;
     private String userAddr;
     private String userDetailAddr;
+    private String profileImg;
 
     private String userPhone;
     private String userGen;
@@ -47,6 +48,7 @@ public class UserResDto {
                 .userPhone(member.getUserPhone())
                 .userGen(member.getUserGen())
                 .userAge(member.getUserAge())
+                .profileImg(member.getProfileImg())
                 .userPoint(member.getUserPoint())
                 .BUSINESS_NUM(member.getBUSINESS_NUM())
                 .authority(member.getAuthority())

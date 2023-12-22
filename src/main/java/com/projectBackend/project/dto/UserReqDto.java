@@ -28,6 +28,8 @@ public class UserReqDto {
     private String userGen;
     private int userAge;
     private int userPoint;
+
+    private String profileImg;
     private String BUSINESS_NUM;
     @Enumerated(EnumType.STRING)
     private Authority authority;
@@ -46,6 +48,7 @@ public class UserReqDto {
                 .age(userAge)
                 .gender(userGen)
                 .point(userPoint)
+                .profileImg(profileImg)
                 .BUSINESS_NUM(BUSINESS_NUM)
                 .authority(Authority.ROLE_USER)
                 .build();
