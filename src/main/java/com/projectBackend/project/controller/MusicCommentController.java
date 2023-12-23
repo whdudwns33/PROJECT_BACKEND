@@ -54,7 +54,7 @@ public class MusicCommentController {
     }
 
 
-    //댓글 목록 조회
+    //댓글 목록 조회 -
     @GetMapping("/list/{musicId}")
     public ResponseEntity<List<MusicCommentDTO>> musicCommentList(@PathVariable Long musicId) {
         log.info("musicId: {}", musicId);
@@ -62,7 +62,7 @@ public class MusicCommentController {
         return ResponseEntity.ok(musicCommentDTOList);
     }
 
-    //댓글 검색
+    //댓글 검색 -
     @GetMapping("/search/{keyword}")
     public ResponseEntity<List<MusicCommentDTO>> musicCommentSearch(@PathVariable String keyword) {
         log.info("keyword : {}", keyword);
