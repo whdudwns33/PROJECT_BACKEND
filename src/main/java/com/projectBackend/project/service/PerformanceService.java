@@ -109,10 +109,25 @@ public class PerformanceService {
 //        }
 //    }
 
+//    // 공연 전체삭제
+//    public void deleteAll() {
+//        performanceRepository.deleteAll();
+//    }
+
     // 공연 삭제
-    public void deleteAll() {
-        performanceRepository.deleteAll();
+    public void deletePerformance(Long performanceId) {
+        // 이 공연과 관련된 모든 공연자를 조회
+        List<Performer> performers = performerRepository.findByPerformance_PerformanceId(performanceId);
+        System.out.println("performers : " + performers);
+       // 찾은 모든 공연자를 삭제
+        for (Performer performer : performers) {
+            performerRepository.delete(performer);
+        }
+
+        // 공연 삭제
+        performanceRepository.deleteById(performanceId);
     }
+
 
     // 페이지네이션
     public List<PerformanceDto> getPerformanceList(int page, int size) {

@@ -43,11 +43,19 @@ public class PerformanceController {
     }
 
 
+    // 공연 전체 삭제
+//    @DeleteMapping("/delete")
+//    public ResponseEntity<Boolean> performanceDelete() {
+//        System.out.println("PerformanceController 공연 삭제");
+//        performanceService.deleteAll();
+//        return ResponseEntity.ok(true);
+//    }
+
     // 공연 삭제
-    @DeleteMapping("/delete")
-    public ResponseEntity<Boolean> performanceDelete() {
+    @DeleteMapping("/delete/{performanceId}")
+    public ResponseEntity<Boolean> performanceDelete(@PathVariable Long performanceId) {
         System.out.println("PerformanceController 공연 삭제");
-        performanceService.deleteAll();
+        performanceService.deletePerformance(performanceId);
         return ResponseEntity.ok(true);
     }
 
