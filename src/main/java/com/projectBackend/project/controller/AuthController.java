@@ -128,11 +128,5 @@ public class AuthController {
         return authService.getUserByEmail(email);
     }
 
-    // 장현준, 전체유저리스트
-    @GetMapping("/userList")
-    public ResponseEntity<List<Member>> userList() {
-        System.out.println("컨트롤러 userList");
-        List<Member> list = authService.getUserList();
-        return ResponseEntity.ok(list);
-    }
+
 }
