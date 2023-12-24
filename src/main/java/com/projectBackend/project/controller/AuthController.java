@@ -115,7 +115,10 @@ public class AuthController {
         return ResponseEntity.ok(authService.createAccessToken(refreshToken));
     }
 
-
+    @GetMapping("/userList")
+    public ResponseEntity<List<Member>> userList() {
+        return ResponseEntity.ok(authService.getUserList());
+    }
 
     // 길종환
     @GetMapping("/infoByToken")
