@@ -108,11 +108,6 @@ public class AuthService {
                             // 불러온 리프레쉬 토큰
                             String refreshToken = token.getRefreshToken();
                             log.info("refreshToken : {}", refreshToken);
-                            // 토큰 유효성 체크
-//                            boolean isTrue = tokenProvider.validateRefreshToken(refreshToken);
-//                            if(isTrue) {
-//
-//                            }
                             return tokenProvider.validateRefreshToken(refreshToken);
                         } else {
                             return false;
@@ -217,6 +212,43 @@ public class AuthService {
         boolean isTrue = userRepository.existsByUserNickname(nickName);
         log.warn("닉네임 중복 확인 {} : ", isTrue);
         return isTrue;
+    }
+
+    // 닉네임으로 이메일을 찾아서 반환
+    public String getEmail(String nickname) {
+        if (nickname != null) {
+            Optional<Member> member = userRepository.findByUserNickname(nickname);
+            if (member.isPresent()) {
+                Member user = member.get();
+                return user.getUserEmail();
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+
+    // 비밀번호 변경
+    public boolean changePassword(UserReqDto userReqDto) {
+        try {
+            Optional<Member> member = userRepository.findByUserNickname(userReqDto.getUserNickname());
+            if (member.isPresent()) {
+                Member user = member.get();
+                user.setUserPassword(passwordEncoder.encode(userReqDto.getUserPassword()));
+                userRepository.save(user);
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // accessToken 재발급을 위해 리프레쉬 토큰에서 권한 정보 추출

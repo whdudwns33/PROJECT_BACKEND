@@ -19,6 +19,8 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static com.projectBackend.project.service.MailService.EPW;
@@ -99,6 +101,19 @@ public class AuthController {
     public ResponseEntity<TokenDto> login(@RequestBody UserReqDto userReqDto) {
         TokenDto tokenDto = authService.login(userReqDto);
         return ResponseEntity.ok(tokenDto);
+    }
+
+    // 이메일 찾기 -> 닉네임으로
+    @GetMapping("/find")
+    public ResponseEntity<String> findEmail(@RequestParam String nickname) {
+
+        return ResponseEntity.ok(authService.getEmail(nickname));
+    }
+
+    // 비밀 번호 변경
+    @PostMapping("/change/password")
+    public ResponseEntity<Boolean> changePassword(@RequestBody UserReqDto userReqDto ) {
+        return ResponseEntity.ok(authService.changePassword(userReqDto));
     }
 
     // 로그인 상태 체크 (+ refresh 토큰 유효성 체크)

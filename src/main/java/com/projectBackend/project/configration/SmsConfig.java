@@ -40,6 +40,7 @@ public class SmsConfig {
     // 인증 번호를 문자로 전송
     @GetMapping("/send-mms")
     public SingleMessageSentResponse sendMmsByResourcePath(@RequestParam String tel) throws IOException {
+        System.out.println(tel);
         // 인증 번호 생성
         authNum = generateAuthCode();
         Message message = new Message();
