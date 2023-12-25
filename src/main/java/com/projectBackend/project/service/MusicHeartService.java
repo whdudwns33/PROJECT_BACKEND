@@ -2,6 +2,8 @@ package com.projectBackend.project.service;
 
 import com.projectBackend.project.dto.MusicDTO;
 import com.projectBackend.project.dto.MusicHeartDto;
+import com.projectBackend.project.dto.MusicUserDto;
+import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.entity.MusicHeart;
@@ -26,6 +28,7 @@ public class MusicHeartService {
     private final MusicRepository musicRepository;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+//    private final MusicDTO musicDTO;
 
 
     // 해당 사용자가 음악에 좋아요를 누를 때 실행되는 메서드
@@ -132,7 +135,42 @@ public class MusicHeartService {
         else {
             return 0;
         }
+    }
 
+    // 조영준 회원의 성별 좋아요
+    public List<MusicUserDto> getGenderList(String token) {
+        // 로그인한 회원의 성별 조회
+        // 토큰에서 이메일 파싱
+        String email = tokenProvider.getUserEmail(token);
+        Optional<Member> member = userRepository.findByUserEmail(email);
+        if (member.isPresent()) {
+            // 파싱한 이메일로 회원 정보 조회
+            Member user = member.get();
+            // 회원의 성별 조회
+            String gender = user.getUserGen();
+
+            // 회원의 성별과 동일한 성별의 좋아요 리스트
+            List<MusicHeart> musicHearts = musicHeartRepository.findByMember_UserGen(gender);
+            // 좋아요 리스트에서 음악 리스트로 변경
+            List<MusicUserDto> musicUserDtos = new ArrayList<>();
+
+            for (MusicHeart musicHeart : musicHearts) {
+                Music music = musicHeart.getMusic();
+                Member musician = musicHeart.getMember();
+                UserResDto userResDto = UserResDto.of(musician);
+                MusicDTO musicDTO = MusicDTO.of(music);
+
+                MusicUserDto musicUserDto = new MusicUserDto();
+                musicUserDto.setMusicDTO(musicDTO);
+                musicUserDto.setUserResDto(userResDto);
+
+                musicUserDtos.add(musicUserDto);
+            }
+            return musicUserDtos;
+        }
+        else {
+            return null;
+        }
     }
 
 

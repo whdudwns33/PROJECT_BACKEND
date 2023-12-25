@@ -13,10 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -53,7 +50,15 @@ public class MainController {
 
     // 음악 좋아요 순서 정렬
     @GetMapping("/likeSong")
-    public ResponseEntity<List<MusicUserDto>> listList() {
+    public ResponseEntity<List<MusicUserDto>> likeList() {
         return ResponseEntity.ok(musicService.getMusicByheart());
     }
+
+    // 회원 성별 좋아요 정렬
+    @GetMapping("/gender")
+    public ResponseEntity<List<MusicUserDto>> genderList(@RequestParam String token) {
+        return ResponseEntity.ok(musicHeartService.getGenderList(token));
+    }
+
+
 }

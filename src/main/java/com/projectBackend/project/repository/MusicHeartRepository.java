@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface MusicHeartRepository extends JpaRepository<MusicHeart, Long> {
     List<MusicHeart> findByMusic_MusicId(Long musicId);
+    List<MusicHeart> findByMember_UserGen(String userGen);
 
     @Transactional
     @Modifying
