@@ -26,7 +26,13 @@ public class UserController {
     @GetMapping("/isLogin")
     public ResponseEntity<Boolean> isLogin(@RequestParam String accessToken) {
         boolean isTrue = authService.isLogined(accessToken);
-        System.out.println("로그인 체크 : " + isTrue);
+        return ResponseEntity.ok(isTrue);
+    }
+
+    // 어드민 체크
+    @GetMapping("/isAdmin")
+    public ResponseEntity<Boolean> isAdmin(@RequestParam String accessToken) {
+        boolean isTrue = authService.isAdmin(accessToken);
         return ResponseEntity.ok(isTrue);
     }
 

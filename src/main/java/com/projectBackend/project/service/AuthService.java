@@ -159,6 +159,23 @@ public class AuthService {
         }
     }
 
+    // 관리자 체크
+    public boolean isAdmin (String token) {
+        String email = tokenProvider.getUserEmail(token);
+        Optional<Member> member = userRepository.findByUserEmail(email);
+        if(member.isPresent()) {
+            Member user = member.get();
+            String role = String.valueOf(user.getAuthority());
+            log.info("Authority : {}", user.getAuthority());
+            if (role.equals("ROLE_ADMIN")) {
+                System.out.println("어드민 맞아용");
+                return true;
+            }
+            else return false;
+        }
+        else return false;
+    }
+
 
     // 카카오 로그인 => 카카오 토큰이 존재하지만, 사용하지 않을 생각
     public TokenDto kakaoLogin(String accessToken) {
