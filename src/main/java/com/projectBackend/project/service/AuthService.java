@@ -1,6 +1,7 @@
 package com.projectBackend.project.service;
 
 
+import com.projectBackend.project.constant.Authority;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.dto.TokenDto;
@@ -125,6 +126,36 @@ public class AuthService {
             e.printStackTrace();
             System.out.println("로그인 상태가 아닙니다.");
             return false;
+        }
+    }
+
+    // 관리자 로그인
+    public TokenDto admin (UserReqDto userReqDto) {
+        String email = userReqDto.getUserEmail();
+        Optional<Member> userEntity = userRepository.findByUserEmail(email);
+
+        if (email.equals("adminlogin123@admin.com")) {
+            if (userEntity.isPresent()) {
+                // userEntity 객체의 정보를 데이터 베이스 객체로 생성
+                Member user = userEntity.get();
+                UsernamePasswordAuthenticationToken authenticationToken = userReqDto.toAuthentication();
+                Authentication authentication = managerBuilder.getObject().authenticate(authenticationToken);
+                TokenDto tokenDto = tokenProvider.generateTokenDto(authentication);
+                tokenDto.setRole("admin");
+                String refreshToken = tokenDto.getRefreshToken();
+                // 토큰 저장
+                Token token = new Token();
+                token.setRefreshToken(refreshToken);
+                token.setMember(user);
+                tokenRepository.save(token);
+                return tokenDto;
+            }
+            else {
+                return null;
+            }
+        }
+        else {
+            return null;
         }
     }
 

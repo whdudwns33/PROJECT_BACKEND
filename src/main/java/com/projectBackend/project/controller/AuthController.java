@@ -1,5 +1,6 @@
 package com.projectBackend.project.controller;
 
+import com.projectBackend.project.constant.Authority;
 import com.projectBackend.project.dto.TokenDto;
 import com.projectBackend.project.dto.UserReqDto;
 import com.projectBackend.project.dto.UserResDto;
@@ -103,6 +104,13 @@ public class AuthController {
         return ResponseEntity.ok(tokenDto);
     }
 
+
+    // 관리자 로그인
+    @PostMapping("/addmin")
+    public ResponseEntity<TokenDto> adminLogin(@RequestBody UserReqDto userReqDto) {
+        return ResponseEntity.ok(authService.admin(userReqDto));
+    }
+
     // 이메일 찾기 -> 닉네임으로
     @GetMapping("/find")
     public ResponseEntity<String> findEmail(@RequestParam String nickname) {
@@ -122,6 +130,7 @@ public class AuthController {
         boolean isTrue = authService.isLogined(email);
         return ResponseEntity.ok(isTrue);
     }
+
 
     // accessToken 재발급
     @PostMapping("/refresh")
