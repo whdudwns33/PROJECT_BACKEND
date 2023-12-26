@@ -5,6 +5,8 @@ import com.projectBackend.project.entity.*;
 import com.projectBackend.project.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -198,7 +201,7 @@ public class CommunityService {
     }
     // 실시간 랭킹
     public List<Community> getRealtimeRanking(String period) {
-        // 최근 1시간 이내의 게시글을 대상으로 함
+        // 최근 시간을 설정하고 가져옴
         LocalDateTime targetTime;
 
         switch (period) {
@@ -227,7 +230,38 @@ public class CommunityService {
         // 상위 10개 게시글만 반환함
         return posts.subList(0, Math.min(10, posts.size()));
     }
+    // 게시글 페이지네이션 검색
+    public Page<CommunityDTO> searchByTitleAndContent(String keyword, Pageable pageable) {
+        Page<Community> communities = communityRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+        return communities.map(this::convertEntityToDTO);
+    }
 
+    public Page<CommunityDTO> searchByTitle(String keyword, Pageable pageable) {
+        Page<Community> communities = communityRepository.findByTitleContaining(keyword, pageable);
+        return communities.map(this::convertEntityToDTO);
+    }
+
+    public Page<CommunityDTO> searchByNickname(String keyword, Pageable pageable) {
+        Page<Community> communities = communityRepository.findByNickNameContaining(keyword, pageable);
+        return communities.map(this::convertEntityToDTO);
+    }
+    public Page<CommunityDTO> searchByComment(String keyword, Pageable pageable) {
+        // 먼저 키워드를 포함하는 댓글
+        Page<Comment> comments = commentRepository.findByContentContaining(keyword, pageable);
+
+        // 찾은 댓글들이 속한 Community들을 찾기
+        List<Community> communities = comments.stream()
+                .map(Comment::getCommunity)
+                .collect(Collectors.toList());
+
+        // Community들을 DTO로 변환
+        List<CommunityDTO> communityDTOs = communities.stream()
+                .map(this::convertEntityToDTO)
+                .collect(Collectors.toList());
+
+        // DTO 리스트를 페이지로 변환하여 반환
+        return new PageImpl<>(communityDTOs, pageable, communityDTOs.size());
+    }
     // 게시글 엔티티를 DTO로 변환
     private CommunityDTO convertEntityToDTO(Community community) {
         CommunityDTO communityDTO = new CommunityDTO();

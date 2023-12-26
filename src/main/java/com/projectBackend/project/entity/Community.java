@@ -55,4 +55,5 @@ public class Community {
     private String ipAddress;
     private String nickName;
     private String password;
+
 }

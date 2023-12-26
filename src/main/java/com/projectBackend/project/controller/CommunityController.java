@@ -5,7 +5,9 @@ import com.projectBackend.project.entity.Community;
 import com.projectBackend.project.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommunityController {
     private final CommunityService communityService;
-    // 게시글 작석
+    // 게시글 작성
     @PostMapping("/new")
     public ResponseEntity<Boolean> saveCommunity(@RequestBody CommunityDTO communityDTO, HttpServletRequest request) {
         return ResponseEntity.ok(communityService.saveCommunity(communityDTO, request));
@@ -97,4 +99,29 @@ public class CommunityController {
     public ResponseEntity<List<Community>> getRealtimeRanking(@PathVariable String period) {
         return ResponseEntity.ok(communityService.getRealtimeRanking(period));
     }
+    // 게시글 검색 기본(제목+내용)
+    @GetMapping("/search/titleAndContent")
+    public ResponseEntity<Page<CommunityDTO>> searchByTitleAndContent(@RequestParam String keyword, Pageable pageable) {
+        Page<CommunityDTO> list = communityService.searchByTitleAndContent(keyword, pageable);
+        return ResponseEntity.ok(list);
+    }
+    // 제목으로 검색
+    @GetMapping("/search/title")
+    public ResponseEntity<Page<CommunityDTO>> searchByTitle(@RequestParam String keyword, Pageable pageable) {
+        Page<CommunityDTO> list = communityService.searchByTitle(keyword, pageable);
+        return ResponseEntity.ok(list);
+    }
+    // 닉네임으로 검색
+    @GetMapping("/search/nickname")
+    public ResponseEntity<Page<CommunityDTO>> searchByNickname(@RequestParam String keyword, Pageable pageable) {
+        Page<CommunityDTO> list = communityService.searchByNickname(keyword, pageable);
+        return ResponseEntity.ok(list);
+    }
+    // 댓글로 검색
+    @GetMapping("/search/comment")
+    public ResponseEntity<Page<CommunityDTO>> communitySearch(@RequestParam String keyword, Pageable pageable) {
+        Page<CommunityDTO> list = communityService.searchByComment(keyword, pageable);
+        return ResponseEntity.ok(list);
+    }
+
 }

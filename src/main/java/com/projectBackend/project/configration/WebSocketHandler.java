@@ -2,7 +2,10 @@ package com.projectBackend.project.configration;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.projectBackend.project.dto.ChatMessageDTO;
+import com.projectBackend.project.dto.ChatRoomResDTO;
 import com.projectBackend.project.dto.CommentMessageDTO;
+import com.projectBackend.project.service.ChatService;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +25,11 @@ import java.util.stream.Collectors;
 @Component
 public class WebSocketHandler extends TextWebSocketHandler {
     private final ObjectMapper objectMapper;
+    private final ChatService chatService;
     @Getter
     private final Map<String, List<WebSocketSession>> userSessionMap = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, String> sessionRoomIdMap = new ConcurrentHashMap<>();
+
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         try {
@@ -31,18 +37,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
             log.info("{}", payload);
             CommentMessageDTO commentMessage = objectMapper.readValue(payload, CommentMessageDTO.class);
             log.warn(commentMessage.getAuthorEmail());
-            // 알림 메시지 생성
-            Map<String, String> alertMessage = new HashMap<>();
-            alertMessage.put("message", "새로운 댓글이 작성되었습니다: " + commentMessage.getCommentContent());
-            String alertMessageJson = objectMapper.writeValueAsString(alertMessage);
+            if(commentMessage.getAuthorEmail() != null) {
+                // 알림 메시지 생성
+                Map<String, String> alertMessage = new HashMap<>();
+                alertMessage.put("message", "새로운 댓글이 작성되었습니다: " + commentMessage.getCommentContent());
+                String alertMessageJson = objectMapper.writeValueAsString(alertMessage);
 
-            // 게시글 작성자의 세션 가져오기
-            List<WebSocketSession> postAuthorSessions = userSessionMap.get(commentMessage.getAuthorEmail());
+                // 게시글 작성자의 세션 가져오기
+                List<WebSocketSession> postAuthorSessions = Optional.ofNullable(userSessionMap.get(commentMessage.getAuthorEmail())).orElse(new ArrayList<>());
 
-            // 게시글 작성자에게 알림 메시지 보내기
-            if (postAuthorSessions == null) {
-                log.warn("세션을 찾을 수 없음: " + commentMessage.getAuthorEmail());
-            } else {
+                // 게시글 작성자에게 알림 메시지 보내기
                 for (WebSocketSession postAuthorSession : postAuthorSessions) {
                     if (postAuthorSession.isOpen()) {
                         postAuthorSession.sendMessage(new TextMessage(alertMessageJson));
@@ -51,6 +55,16 @@ public class WebSocketHandler extends TextWebSocketHandler {
                     }
                 }
             }
+            // 채팅방
+            ChatMessageDTO chatMessage = objectMapper.readValue(payload, ChatMessageDTO.class);
+            ChatRoomResDTO chatRoom = chatService.findRoomById(chatMessage.getRoomId());
+            if(chatMessage.getRoomId() != null) {
+                log.warn(chatRoom.toString());
+                // 세션과 채팅방 ID를 매핑
+                sessionRoomIdMap.put(session, chatMessage.getRoomId());
+                chatRoom.handlerActions(session, chatMessage, chatService);
+            }
+
         } catch (Exception e) {
             log.error("Error handling message: ", e);
         }
@@ -78,7 +92,17 @@ public class WebSocketHandler extends TextWebSocketHandler {
                 userSessionMap.remove(identifier);
             }
         }
+        // 세션과 매핑된 채팅방 ID 가져오기
+        String roomId = sessionRoomIdMap.remove(session);
+        ChatRoomResDTO chatRoom = chatService.findRoomById(roomId);
+        if(chatRoom != null) {
+            chatRoom.handleSessionClosed(session, chatService);
+        } else {
+            // chatRoom이 null인 경우에 대한 처리
+            log.warn("Chat room not found for ID: {}", roomId);
+        }
     }
+
     private String getEmailFromSession(WebSocketSession session) {
         try {
             String query = session.getUri().getQuery();
