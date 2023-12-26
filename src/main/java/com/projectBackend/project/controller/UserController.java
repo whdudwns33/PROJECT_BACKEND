@@ -7,10 +7,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -36,7 +38,33 @@ public class UserController {
         return ResponseEntity.ok(isTrue);
     }
 
+    // 길종환
+    // 유저 포인트 충전
+    @PostMapping("/increasePoints")
+    public ResponseEntity<Boolean> increasePoints(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        int points = Integer.parseInt(payload.get("points"));
+        boolean success = authService.increasePoints(email, points);
 
+        if (success) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+        }
+    }
+    // 유저 포인트 환전
+    @PostMapping("/exchangePoints")
+    public ResponseEntity<Boolean> exchangePoints(@RequestBody Map<String, String> payload) {
+        String email = payload.get("email");
+        int points = Integer.parseInt(payload.get("points"));
+        boolean success = authService.decreasePoints(email, points);
+
+        if (success) {
+            return ResponseEntity.ok().body(true);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+        }
+    }
 
 
 

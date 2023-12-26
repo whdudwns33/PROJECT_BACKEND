@@ -323,7 +323,33 @@ public class AuthService {
         Optional<Member> userEntity = userRepository.findByUserEmail(email);
         return userEntity.orElse(null);
     }
-
+    // 유저 포인트 증가
+    public boolean increasePoints(String userEmail, int amount) {
+        try {
+            Member member = userRepository.findByUserEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("해당 이메일의 사용자를 찾을 수 없습니다."));
+            member.setUserPoint(member.getUserPoint() + amount);
+            userRepository.save(member);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    // 유저 포인트 감소
+    public boolean decreasePoints(String userEmail, int amount) {
+        try {
+            Member member = userRepository.findByUserEmail(userEmail)
+                    .orElseThrow(() -> new RuntimeException("해당 이메일의 사용자를 찾을 수 없습니다."));
+            if (member.getUserPoint() < amount) {
+                throw new RuntimeException("포인트가 부족합니다.");
+            }
+            member.setUserPoint(member.getUserPoint() - amount);
+            userRepository.save(member);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
     // 장현준, 전체유저리스트
     public List<Member> getUserList() {
         List<Member> members = userRepository.findAll();
