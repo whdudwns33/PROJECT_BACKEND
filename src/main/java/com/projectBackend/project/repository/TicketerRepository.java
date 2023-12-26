@@ -1,6 +1,5 @@
 package com.projectBackend.project.repository;
 
-import com.projectBackend.project.entity.Performer;
 import com.projectBackend.project.entity.Ticketer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -2,14 +2,15 @@ package com.projectBackend.project.service;
 
 
 import com.projectBackend.project.dto.PerformanceDto;
-import com.projectBackend.project.dto.PerformerDto;
 import com.projectBackend.project.dto.UserResDto;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Performance;
 import com.projectBackend.project.entity.Performer;
+import com.projectBackend.project.entity.Ticketer;
 import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.PerformanceRepository;
 import com.projectBackend.project.repository.PerformerRepository;
+import com.projectBackend.project.repository.TicketerRepository;
 import com.projectBackend.project.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,7 @@ public class PerformanceService {
     private final PerformerRepository performerRepository;
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
+    private final TicketerRepository ticketerRepository;
 
     // 공연 조회
     public List<PerformanceDto> getPerformanceList() {
@@ -122,6 +124,13 @@ public class PerformanceService {
        // 찾은 모든 공연자를 삭제
         for (Performer performer : performers) {
             performerRepository.delete(performer);
+        }
+        // 이 공연과 관련된 모든 티켓터를 찾습니다.
+        List<Ticketer> ticketers = ticketerRepository.findByPerformance_PerformanceId(performanceId);
+
+        // 찾은 모든 티켓터를 삭제합니다.
+        for (Ticketer ticketer : ticketers) {
+            ticketerRepository.delete(ticketer);
         }
 
         // 공연 삭제
