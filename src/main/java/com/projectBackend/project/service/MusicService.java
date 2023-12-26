@@ -5,6 +5,7 @@ import com.projectBackend.project.dto.*;
 import com.projectBackend.project.entity.Member;
 import com.projectBackend.project.entity.Music;
 import com.projectBackend.project.entity.MusicHeart;
+import com.projectBackend.project.jwt.TokenProvider;
 import com.projectBackend.project.repository.MusicHeartRepository;
 import com.projectBackend.project.repository.MusicRepository;
 import com.projectBackend.project.repository.UserRepository;
@@ -33,7 +34,7 @@ public class MusicService {
     private final UserRepository userRepository;
     private final MusicHeartRepository musicHeartRepository;
     private final   MusicHeartService musicHeartService;
-
+    private final TokenProvider tokenProvider;
 
 
     //음악 전체 조회
@@ -71,95 +72,6 @@ public class MusicService {
         return musicUserDtos;
     }
 
-//    public List<MusicUserDto> getAllMusic() {
-//        // 리스트 정보를 뽑아옴
-//        List<Music> musics = musicRepository.findAll();
-//        // 닉네임 값을 뽑아 옴
-//        List<String> nickNames = new ArrayList<>();
-//
-//        for (Music music : musics) {
-//            nickNames.add(music.getMember().getUserNickname());
-//        }
-//        System.out.println("user nickname list" + nickNames);
-//        // music & user data 전달
-//        List<MusicUserDto> musicUserDtos = new ArrayList<>();
-//        for (int i = 0; i < musics.size(); i++) {
-//            // i 번째 엔티티 객체
-//            Music music = musics.get(i);
-//            System.out.println(i + "music " + music);
-//
-//            // 닉네임 값
-//            String nickname = nickNames.get(i);
-//            System.out.println(i + "nickname1 : " + nickname);
-//
-//            // music Dto로 변환
-//            MusicDTO musicDTO = convertEntityToUserDto(music, nickname);
-//            System.out.println(i + "musicDto : " + musicDTO);
-//
-//            // user dto
-//            UserResDto userResDto = new UserResDto();
-//            userResDto.setUserNickname(nickname);
-//
-//
-//            // 최종 응답 dto
-//            MusicUserDto musicUserDto = new MusicUserDto();
-//            musicUserDto.setMusicDTO(musicDTO);
-//            musicUserDto.setUserResDto(userResDto); // 닉네임 값 설정
-//
-//            // 최종 응답 dto list
-//            musicUserDtos.add(musicUserDto);
-//        }
-//        System.out.println("final musicUserDtos : " + musicUserDtos);
-//
-//        return musicUserDtos;
-//    }
-
-//    //음악 좋아요.
-//    public int addheart(Long id) {
-//        Optional<Music> musicOptional = musicRepository.findById(id);
-//        if(musicOptional.isPresent()) {
-//            Music music = musicOptional.get();
-//            System.out.println("music1111 : " +music);
-//            String nickname = music.getMember().getUserNickname();
-//            System.out.println("nickname : " +nickname );
-//            List<String> heartchecklist = music.getHeartCheck();
-//            int heartCount = music.getHeartCount();
-//
-//            boolean isTrue = false;
-//            for (String heartcheck : heartchecklist) {
-//                if(heartcheck.equals(nickname)) {
-//                    isTrue = false;
-//                }
-//                else {
-//                    isTrue = true;
-//                }
-//            }
-//
-//            if(isTrue) {
-//                heartCount ++;
-//                music.setHeartCount(heartCount);
-//                System.out.println("heartcount : " + music);
-//                musicRepository.save(music);
-//                return heartCount;
-//            }else {
-//                heartCount --;
-//                music.setHeartCount(heartCount);
-//                System.out.println(("heartminus : " + music));
-//                musicRepository.save(music);
-//                return heartCount;
-//            }
-//        }else {
-//            return 0;
-//        }
-//    }
-
-
-
-
-
-
-
-
 
     //상세 조회
     public MusicUserDto getMusicById(Long id) {
@@ -186,6 +98,58 @@ public class MusicService {
             musicUserDtos.add(musicUserDto);
         }
         return musicUserDtos;
+    }
+
+
+    // 음악 구매.
+    public boolean purchaseMusic(MusicUserDto musicUserDto) {
+        String token = musicUserDto.getToken();
+        log.info("TOKEN : {}", token);
+        String userEmail = tokenProvider.getUserEmail(token);
+        log.info("userEmail : {}", userEmail);
+        Long id = musicUserDto.getMusicDTO().getId();
+        log.info("id : {}", id);
+        // 회원 정보 확인
+        Optional<Member> memberOptional = userRepository.findByUserEmail(userEmail);
+        if (memberOptional.isPresent()) {
+            Member member = memberOptional.get();
+
+            // 음원 정보 확인
+            Optional<Music> musicOptional = musicRepository.findById(id);
+            log.info("musicOptional : {}", musicOptional);
+            if (musicOptional.isPresent()) {
+                Music music = musicOptional.get();
+                if (music != null) {
+                    System.out.println("Music found: " + music.getMusicTitle()); // 음원을 찾았을 경우 제목 출력
+
+                    // 포인트 확인 및 구매 처리
+                    if (member.getUserPoint() >= 100) {
+                        member.setUserPoint(member.getUserPoint() - 100);
+                        music.setPurchaseCount(music.getPurchaseCount() + 1);
+
+                        // 변경된 정보 저장
+                        musicRepository.save(music);
+                        userRepository.save(member);
+
+                        System.out.println("Purchase successful."); // 구매 성공 시 처리
+                        return true;
+                    } else {
+                        System.out.println("Insufficient points."); // 포인트가 부족한 경우 처리
+                        return false;
+                    }
+                } else {
+                    System.out.println("Music not found"); // 음원이 존재하지 않을 경우 처리
+                    return false;
+                }
+            } else {
+                System.out.println("Member not found"); // 회원이 존재하지 않을 경우 처리
+                return false;
+            }
+        } else {
+            System.out.println("Member not found"); // 회원이 존재하지 않을 경우 처리
+            return false;
+        }
+
     }
 
 
@@ -230,6 +194,13 @@ public class MusicService {
             return false;
         }
     }
+
+
+
+
+
+
+
 
 
     // 페이지네이션
