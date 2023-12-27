@@ -184,9 +184,9 @@ public class AuthService {
 
 
     // 카카오 로그인 => 카카오 토큰이 존재하지만, 사용하지 않을 생각
-    public TokenDto kakaoLogin(String accessToken) {
+    public TokenDto kakaoLogin(String email) {
         try {
-            String email = tokenProvider.getUserEmail(accessToken);
+
             System.out.println("kakao login : " + email);
             // 카카오 로그인 => 카카오 이메일 + 랜덤 비밀번호 사용
             // 랜덤 비밀번호를 저장하기 위한 데이터 조회 및 저장
@@ -359,12 +359,6 @@ public class AuthService {
     }
     // 장현준, 전체유저리스트
     public List<Member> getUserList() {
-        List<Member> members = userRepository.findAll();
-        List<UserResDto> userResDtos = new ArrayList<>();
-        System.out.println("서비스, members : " + members);
-        for (Member member : members) {
-            userResDtos.add(UserResDto.of(member));
-        }
         return userRepository.findAll();
     }
 
