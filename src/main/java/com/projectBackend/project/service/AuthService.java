@@ -359,12 +359,6 @@ public class AuthService {
     }
     // 장현준, 전체유저리스트
     public List<Member> getUserList() {
-        List<Member> members = userRepository.findAll();
-        List<UserResDto> userResDtos = new ArrayList<>();
-        System.out.println("서비스, members : " + members);
-        for (Member member : members) {
-            userResDtos.add(UserResDto.of(member));
-        }
         return userRepository.findAll();
     }
 
