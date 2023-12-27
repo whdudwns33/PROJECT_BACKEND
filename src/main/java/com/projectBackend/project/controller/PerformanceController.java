@@ -110,5 +110,14 @@ public class PerformanceController {
         return ResponseEntity.ok(list);
     }
 
+    // 장현준, 이메일로 유저조회
+    @GetMapping("/userByEmail")
+    public Member getUserByEmail(@RequestParam String email) {
+        System.out.println("PerformanceController 이메일로 유저조회");
+        return performanceService.getUserInfoByEmail(email);
+    }
+
 }
+
+
 

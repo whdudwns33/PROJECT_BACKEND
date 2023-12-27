@@ -9,6 +9,9 @@ public class TicketerDto {
     private Long ticketerId;
     private Long performanceId;
     private Long userId;
+    private Integer count;
+    private Integer totalPrice;
     private Integer price;
+    private String email;
 
 }

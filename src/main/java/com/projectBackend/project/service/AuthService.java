@@ -105,18 +105,18 @@ public class AuthService {
                     // 가장 최근의 리프레쉬 데이터
                     if (!tokens.isEmpty()) {
                         Token token = tokens.get(tokens.size() - 1);
-                            log.info("token : {}", token);
-                            // 불러온 리프레쉬 토큰
-                            String refreshToken = token.getRefreshToken();
-                            log.info("refreshToken : {}", refreshToken);
-                            if ( tokenProvider.validateRefreshToken(refreshToken)) {
-                                    return email;
+                        log.info("token : {}", token);
+                        // 불러온 리프레쉬 토큰
+                        String refreshToken = token.getRefreshToken();
+                        log.info("refreshToken : {}", refreshToken);
+                        if ( tokenProvider.validateRefreshToken(refreshToken)) {
+                            return email;
                         }
-                            else {
-                                return null;
-                            }
-                        } else {
+                        else {
                             return null;
+                        }
+                    } else {
+                        return null;
                     }
                 } else {
                     System.out.println("해당 회원 정보가 없습니다.");
@@ -194,7 +194,7 @@ public class AuthService {
             if (member.isPresent()) {
                 Member user = member.get();
                 System.out.println("카카오 로그인 회원 : " + user);
-                
+
                 // 랜덤 비밀번호 생성 및 저장
                 String password = generateRandomPassword();
                 // 비밀번호 해싱
@@ -367,6 +367,7 @@ public class AuthService {
         }
         return userRepository.findAll();
     }
+
 
 
 }

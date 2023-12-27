@@ -121,12 +121,26 @@ public class PerformanceService {
         // 이 공연과 관련된 모든 공연자를 조회
         List<Performer> performers = performerRepository.findByPerformance_PerformanceId(performanceId);
         System.out.println("performers : " + performers);
-       // 찾은 모든 공연자를 삭제
+        // 찾은 모든 공연자를 삭제
         for (Performer performer : performers) {
             performerRepository.delete(performer);
         }
         // 이 공연과 관련된 모든 티켓터를 찾습니다.
         List<Ticketer> ticketers = ticketerRepository.findByPerformance_PerformanceId(performanceId);
+
+        // 이 공연의 정보를 찾습니다.
+        Performance performance = performanceRepository.findById(performanceId)
+                .orElseThrow(() -> new RuntimeException("잘못된 공연ID:" + performanceId));
+
+        // 찾은 모든 티켓터에 대해
+        for (Ticketer ticketer : ticketers) {
+            // 티켓터의 유저를 찾습니다.
+            Member member = ticketer.getMember();
+            // 유저의 포인트를 증가시킵니다. 티켓의 가격만큼 포인트를 환불합니다.
+            member.setUserPoint(member.getUserPoint() + performance.getPrice());
+            // 변경된 포인트를 저장합니다.
+            userRepository.save(member);
+        }
 
         // 찾은 모든 티켓터를 삭제합니다.
         for (Ticketer ticketer : ticketers) {
@@ -256,6 +270,16 @@ public class PerformanceService {
         }
     }
 
+    //이메일로 유저 조회
+    public Member getUserInfoByEmail(String email) {
+        Optional<Member> optionalMember = userRepository.findByUserEmail(email); // 이메일로 멤버 조회
+        if (optionalMember.isPresent()) { // 멤버가 존재하면
+            Member member = optionalMember.get();
+            return member;
+        } else {
+            return null;
+        }
+    }
 
     // 조영준
     public List<PerformanceDto> getPerformanceComercial() {
@@ -291,7 +315,7 @@ public class PerformanceService {
                 performanceDtoList.add(performanceDto);
             }
 
-            
+
             log.info("performanceDtoList_mainpage : {}",performanceDtoList);
             return performanceDtoList;
         }
