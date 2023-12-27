@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface TokenRepository extends JpaRepository<Token, Long> {
     Optional<Token> findByMemberId(Long memberId);
     List<Token> findAllByMemberId(Long id);
+    void deleteByMember_Id(Long memberId);
 }
+

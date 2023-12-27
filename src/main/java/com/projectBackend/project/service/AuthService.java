@@ -71,6 +71,7 @@ public class AuthService {
                 Token token = new Token();
                 token.setRefreshToken(refreshToken);
                 token.setMember(user);
+                tokenRepository.deleteByMember_Id(user.getId());
                 tokenRepository.save(token);
                 return tokenDto;
             }
@@ -147,6 +148,7 @@ public class AuthService {
                 Token token = new Token();
                 token.setRefreshToken(refreshToken);
                 token.setMember(user);
+                tokenRepository.deleteByMember_Id(user.getId());
                 tokenRepository.save(token);
                 return tokenDto;
             }
@@ -212,6 +214,7 @@ public class AuthService {
                     System.out.println("카카오 리프레쉬 토큰 : " + refreshToken);
                     token.setRefreshToken(refreshToken);
                     token.setMember(user);
+                    tokenRepository.deleteByMember_Id(user.getId());
                     tokenRepository.save(token);
                     return tokenDto;
                 }
