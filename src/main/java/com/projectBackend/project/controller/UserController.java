@@ -26,8 +26,8 @@ public class UserController {
 
     // 로그인 상태 체크 (+ refresh 토큰 유효성 체크)
     @GetMapping("/isLogin")
-    public ResponseEntity<Boolean> isLogin(@RequestParam String accessToken) {
-        boolean isTrue = authService.isLogined(accessToken);
+    public ResponseEntity<String> isLogin(@RequestParam String accessToken) {
+        String isTrue = authService.isLogined(accessToken);
         return ResponseEntity.ok(isTrue);
     }
 

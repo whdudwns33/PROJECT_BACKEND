@@ -88,8 +88,7 @@ public class AuthService {
     // 로그인 상태 확인
     // 이메일을 참조하여 해당
     // 수정 : 이메일 => 토큰
-    public boolean isLogined(String accessToken) {
-        System.out.println("12345678");
+    public String isLogined(String accessToken) {
         try {
             if (accessToken != null) {
                 String email = tokenProvider.getUserEmail(accessToken);
@@ -110,23 +109,28 @@ public class AuthService {
                             // 불러온 리프레쉬 토큰
                             String refreshToken = token.getRefreshToken();
                             log.info("refreshToken : {}", refreshToken);
-                            return tokenProvider.validateRefreshToken(refreshToken);
+                            if ( tokenProvider.validateRefreshToken(refreshToken)) {
+                                    return email;
+                        }
+                            else {
+                                return null;
+                            }
                         } else {
-                            return false;
+                            return null;
                     }
                 } else {
                     System.out.println("해당 회원 정보가 없습니다.");
-                    return false;
+                    return null;
                 }
             }
             else {
-                return false;
+                return null;
             }
         }
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("로그인 상태가 아닙니다.");
-            return false;
+            return null;
         }
     }
 
