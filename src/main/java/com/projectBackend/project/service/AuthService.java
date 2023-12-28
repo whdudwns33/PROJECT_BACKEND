@@ -137,9 +137,11 @@ public class AuthService {
     // 관리자 로그인
     public TokenDto admin (UserReqDto userReqDto) {
         String email = userReqDto.getUserEmail();
-        Optional<Member> userEntity = userRepository.findByUserEmail(email);
 
         if (email.equals("adminlogin123@admin.com")) {
+        Optional<Member> userEntity = userRepository.findByUserEmail(email);
+
+
             if (userEntity.isPresent()) {
                 // userEntity 객체의 정보를 데이터 베이스 객체로 생성
                 Member user = userEntity.get();
@@ -172,9 +174,9 @@ public class AuthService {
         if(member.isPresent()) {
             Member user = member.get();
             String role = String.valueOf(user.getAuthority());
-            log.info("Authority : {}", user.getAuthority());
+            log.warn("Authority : {}", user.getAuthority());
             if (role.equals("ROLE_ADMIN")) {
-                System.out.println("어드민 맞아용");
+                log.info("어드민 맞아용");
                 return true;
             }
             else return false;
