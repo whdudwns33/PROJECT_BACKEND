@@ -14,6 +14,6 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByArtistName(String artistName);
 
-    @Query("SELECT new com.projectBackend.project.dto.ProductDto(p.productId, p.artistName, p.productImage) FROM Product p WHERE p.artistName LIKE %:keyword%")
+    @Query("SELECT new com.projectBackend.project.dto.ProductDto(p.productId, p.artistName, p.productName, p.productImage, p.productPrice) FROM Product p WHERE p.artistName LIKE %:keyword%")
     List<ProductDto> findByKeyword(@Param("keyword") String keyword);
 }
