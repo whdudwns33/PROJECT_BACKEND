@@ -110,6 +110,14 @@ public class PerformanceController {
         return ResponseEntity.ok(list);
     }
 
+    // 전체유저리스트,노토큰
+    @GetMapping("/userListNoToken")
+    public ResponseEntity<List<Member>> userListNoToken() {
+        System.out.println("컨트롤러 userList");
+        List<Member> list = authService.getUserList();
+        return ResponseEntity.ok(list);
+    }
+
     // 장현준, 이메일로 유저조회
     @GetMapping("/userByEmail")
     public Member getUserByEmail(@RequestParam String email) {
