@@ -24,11 +24,11 @@ import java.util.Map;
 public class UserController {
     private final AuthService authService;
 
-    // 로그인 상태 체크 (+ refresh 토큰 유효성 체크)
+    // 로그인 상태 체크 (+ refresh 토큰 유효성 체크) -> 이메일 값 반환
     @GetMapping("/isLogin")
     public ResponseEntity<String> isLogin(@RequestParam String accessToken) {
-        String isTrue = authService.isLogined(accessToken);
-        return ResponseEntity.ok(isTrue);
+        String email = authService.isLogined(accessToken);
+        return ResponseEntity.ok(email);
     }
 
     // 어드민 체크
